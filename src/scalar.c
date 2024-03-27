@@ -351,8 +351,8 @@ int xtract_irregularity_j(const double *data, const int N, const void *argv, dou
 
 int xtract_tristimulus_1(const double *data, const int N, const void *argv, double *result)
 {
-    int n = N >> 1, h = 0, i;
-    double den = 0.0, p1 = 0.0, fund = 0.0, temp = 0.0;
+    int n = N >> 1, i;
+    double den = 0.0, p1 = 0.0, fund = 0.0, temp = 0.0, h = 0.0;
     const double *freqs;
 
     fund = *(double *)argv;
@@ -363,8 +363,8 @@ int xtract_tristimulus_1(const double *data, const int N, const void *argv, doub
         if((temp = data[i]))
         {
             den += temp;
-            h = (int)floor(freqs[i] / fund + 0.5);
-            if(h == 1)
+            h = floor(freqs[i] / fund + 0.5);
+            if(h > 0 && h < 2 && (int)h == 1)
                 p1 += temp;
         }
     }
@@ -383,10 +383,9 @@ int xtract_tristimulus_1(const double *data, const int N, const void *argv, doub
 
 int xtract_tristimulus_2(const double *data, const int N, const void *argv, double *result)
 {
-
-    int n = N >> 1, h = 0, i;
-    double den, p2, p3, p4, ps, fund, temp;
-    den = p2 = p3 = p4 = ps = fund = temp = 0.0;
+    int n = N >> 1, i;
+    double den, p2, p3, p4, ps, fund, temp, h;
+    den = p2 = p3 = p4 = ps = fund = temp = h = 0.0;
     const double *freqs;
 
     fund = *(double *)argv;
@@ -397,22 +396,25 @@ int xtract_tristimulus_2(const double *data, const int N, const void *argv, doub
         if((temp = data[i]))
         {
             den += temp;
-            h = (int)floor(freqs[i] / fund + 0.5);
-            switch (h)
+            h = floor(freqs[i] / fund + 0.5);
+            if (h > 1 && h < 5)
             {
-                case 2:
-                    p2 += temp;
+                switch ((int)h)
+                {
+                    case 2:
+                        p2 += temp;
                     break;
 
-                case 3:
-                    p3 += temp;
+                    case 3:
+                        p3 += temp;
                     break;
 
-                case 4:
-                    p4 += temp;
+                    case 4:
+                        p4 += temp;
 
-                default:
-                    break;
+                    default:
+                        break;
+                }
             }
         }
     }
@@ -434,8 +436,8 @@ int xtract_tristimulus_2(const double *data, const int N, const void *argv, doub
 
 int xtract_tristimulus_3(const double *data, const int N, const void *argv, double *result)
 {
-    int n = N >> 1, h = 0, i;
-    double den = 0.0, num = 0.0, fund = 0.0, temp = 0.0;
+    int n = N >> 1, i;
+    double den = 0.0, num = 0.0, fund = 0.0, temp = 0.0, h = 0.0;
     const double *freqs;
 
     fund = *(double *)argv;
