@@ -26,6 +26,8 @@
 #ifndef XTRACT_TYPES_H
 #define XTRACT_TYPES_H
 
+typedef double real_t;
+
 #ifdef __cplusplus
 extern "C" {
 #endif
