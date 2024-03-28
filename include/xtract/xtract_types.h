@@ -35,12 +35,12 @@ extern "C" {
 /* \brief Data structure used to store amplitude data between calls to xtract_attack_time and other functions. */
 typedef struct _xtract_amp_tracker {
     int count;
-    double previous_amp;
+    real_t previous_amp;
 } xtract_amp_tracker;
 
 typedef struct _xtract_frame_tracker {
     int frame_count;
-    double *previous_frame;
+    real_t *previous_frame;
 } xtract_frame_tracker;
 
 #ifdef __cplusplus

@@ -33,14 +33,14 @@
 #define INDEX 1
 #endif
 
-int xtract_windowed(const double *data, const int N, const void *argv, double *result)
+int xtract_windowed(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n;
-    const double *window;
+    const real_t *window;
 
     n = N;
-    window = (const double *)argv;
+    window = (const real_t *)argv;
 
     while(n--)
         result[n] = data[n] * window[n];
@@ -49,12 +49,12 @@ int xtract_windowed(const double *data, const int N, const void *argv, double *r
 
 }
 
-int xtract_features_from_subframes(const double *data, const int N, const int feature, const void *argv, double *result)
+int xtract_features_from_subframes(const real_t *data, const int N, const int feature, const void *argv, real_t *result)
 {
 
-    const double *frame1,
+    const real_t *frame1,
           *frame2;
-    double *result1,
+    real_t *result1,
           *result2;
 
     int n, rv;
@@ -79,10 +79,10 @@ int xtract_features_from_subframes(const double *data, const int N, const int fe
 /*
  * Implements y[n] = k * x[n] + (1-k) * y[n-1]
  */
-int xtract_smoothed(const double *data, const int N, const void *argv, double *result)
+int xtract_smoothed(const real_t *data, const int N, const void *argv, real_t *result)
 {
-    double gain = *(double *)argv;
-    double oneminusgain = 1.0 - gain;
+    real_t gain = *(real_t *)argv;
+    real_t oneminusgain = 1.0 - gain;
     int i;
     
     // reverse filtering first
@@ -101,11 +101,11 @@ int xtract_smoothed(const double *data, const int N, const void *argv, double *r
 }
 
 
-//inline int xtract_is_denormal(double const d)
-int xtract_is_denormal(double const d)
+//inline int xtract_is_denormal(real_t const d)
+int xtract_is_denormal(real_t const d)
 {
     if(sizeof(d) != 2 * sizeof(int))
-        fprintf(stderr, "libxtract: Error: xtract_is_denormal() detects inconsistent wordlength for type 'double'\n");
+        fprintf(stderr, "libxtract: Error: xtract_is_denormal() detects inconsistent wordlength for type 'real_t'\n");
 
     int l = ((int *)&d)[INDEX];
     return (l&0x7ff00000) == 0 && d!=0; //Check for 0 may not be necessary

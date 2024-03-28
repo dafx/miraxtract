@@ -48,7 +48,7 @@
 typedef struct xtract_ooura_data_
 {
     int *ooura_ip;
-    double *ooura_w;
+    real_t *ooura_w;
     bool initialised;
 } xtract_ooura_data;
 #else

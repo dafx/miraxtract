@@ -48,7 +48,7 @@ xtract_last_n_state *xtract_last_n_state_new(size_t N)
         return NULL;
     }
     
-    last_n_state->ringbuf = ringbuf_new(N * sizeof(double));
+    last_n_state->ringbuf = ringbuf_new(N * sizeof(real_t));
     
     if (last_n_state->ringbuf == NULL)
     {
@@ -64,9 +64,9 @@ void xtract_last_n_state_delete(xtract_last_n_state *last_n_state)
     free(last_n_state);
 }
 
-int xtract_last_n(const xtract_last_n_state *state, const double *data, const int N, const void *argv, double *result)
+int xtract_last_n(const xtract_last_n_state *state, const real_t *data, const int N, const void *argv, real_t *result)
 {
-    size_t N_bytes = N * sizeof(double);
+    size_t N_bytes = N * sizeof(real_t);
     
     if (N_bytes != ringbuf_capacity(state->ringbuf))
     {
@@ -74,9 +74,9 @@ int xtract_last_n(const xtract_last_n_state *state, const double *data, const in
         return XTRACT_BAD_STATE;
     }
     
-    ringbuf_memcpy_into(state->ringbuf, data, sizeof(double));
+    ringbuf_memcpy_into(state->ringbuf, data, sizeof(real_t));
     size_t used = ringbuf_bytes_used(state->ringbuf);
-    size_t result_offset = N - (used / sizeof(double));
+    size_t result_offset = N - (used / sizeof(real_t));
     
     /* Copy at end of result so last value is most recent */
     ringbuf_memcpy_from(result + result_offset, state->ringbuf, used, false);

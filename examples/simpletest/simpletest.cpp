@@ -59,7 +59,7 @@ waveform_type;
 #define MFCC_FREQ_MAX 20000
 
 
-double wavetable[BLOCKSIZE];
+real_t wavetable[BLOCKSIZE];
 
 void fill_wavetable(const float frequency, waveform_type type)
 {
@@ -73,7 +73,7 @@ void fill_wavetable(const float frequency, waveform_type type)
         switch (type)
         {
             case SINE:
-                wavetable[i] = sin((phase / (double)PERIOD) * 2 * M_PI);
+                wavetable[i] = sin((phase / (real_t)PERIOD) * 2 * M_PI);
                 break;
             case SQUARE:
                 if (phase < (samples_per_period / 2.f))     
@@ -86,7 +86,7 @@ void fill_wavetable(const float frequency, waveform_type type)
                 }
                 break;
             case SAWTOOTH:
-                wavetable[i] = ((phase / (double)PERIOD) * 2) - 1.;
+                wavetable[i] = ((phase / (real_t)PERIOD) * 2) - 1.;
                 break;
             case NOISE:
                 wavetable[i] = ((random() % 1000) / 500.0) - 1;
@@ -105,29 +105,29 @@ void print_wavetable(void)
 
 int main(void)
 {
-    double mean = 0.0; 
-    double f0 = 0.0;
-    double midicents = 0.0;
-    double flux = 0.0;
-    double centroid = 0.0;
-    double lowest = 0.0;
-    double spectrum[BLOCKSIZE] = {0};
-    double windowed[BLOCKSIZE] = {0};
-    double peaks[BLOCKSIZE] = {0};
-    double harmonics[BLOCKSIZE] = {0};
-    double subframes_windowed[BLOCKSIZE] = {0};
-    double subframes_spectrum[BLOCKSIZE] = {0};
-    double difference[HALF_BLOCKSIZE] = {0};
-    double lastn[MAVG_COUNT] = {0};
-    double *window = NULL;
-    double *window_subframe = NULL;
-    double mfccs[MFCC_FREQ_BANDS] = {0};
-    double argd[4] = {0};
-    double samplerate = 44100.0;
-    double prev_note = 0.0;
+    real_t mean = 0.0; 
+    real_t f0 = 0.0;
+    real_t midicents = 0.0;
+    real_t flux = 0.0;
+    real_t centroid = 0.0;
+    real_t lowest = 0.0;
+    real_t spectrum[BLOCKSIZE] = {0};
+    real_t windowed[BLOCKSIZE] = {0};
+    real_t peaks[BLOCKSIZE] = {0};
+    real_t harmonics[BLOCKSIZE] = {0};
+    real_t subframes_windowed[BLOCKSIZE] = {0};
+    real_t subframes_spectrum[BLOCKSIZE] = {0};
+    real_t difference[HALF_BLOCKSIZE] = {0};
+    real_t lastn[MAVG_COUNT] = {0};
+    real_t *window = NULL;
+    real_t *window_subframe = NULL;
+    real_t mfccs[MFCC_FREQ_BANDS] = {0};
+    real_t argd[4] = {0};
+    real_t samplerate = 44100.0;
+    real_t prev_note = 0.0;
     int n;
     int rv = XTRACT_SUCCESS;
-    double last_found_peak_time = 0.0;
+    real_t last_found_peak_time = 0.0;
     WaveFile wavFile("test.wav");
     xtract_mel_filter mel_filters;
     xtract_last_n_state *last_n_state = xtract_last_n_state_new(MAVG_COUNT);
@@ -140,21 +140,21 @@ int main(void)
     float *wavData = (float *)wavFile.GetData(); // assume 32-bit float
     std::size_t wavBytes = wavFile.GetDataSize();
     uint64_t wavSamples = wavBytes / sizeof(float);
-    double data[wavSamples];
+    real_t data[wavSamples];
     
     for (n = 0; n < wavSamples; ++n)
     {
-        data[n] = (double)wavData[n];
+        data[n] = (real_t)wavData[n];
     }
-    // Convert to double
+    // Convert to real_t
     
     
     /* Allocate Mel filters */
     mel_filters.n_filters = MFCC_FREQ_BANDS;
-    mel_filters.filters   = (double **)malloc(MFCC_FREQ_BANDS * sizeof(double *));
+    mel_filters.filters   = (real_t **)malloc(MFCC_FREQ_BANDS * sizeof(real_t *));
     for(uint8_t k = 0; k < MFCC_FREQ_BANDS; ++k)
     {
-        mel_filters.filters[k] = (double *)malloc(BLOCKSIZE * sizeof(double));
+        mel_filters.filters[k] = (real_t *)malloc(BLOCKSIZE * sizeof(real_t));
     }
     
     xtract_init_mfcc(BLOCKSIZE >> 1, SAMPLERATE >> 1, XTRACT_EQUAL_GAIN, MFCC_FREQ_MIN, MFCC_FREQ_MAX, mel_filters.n_filters, mel_filters.filters);
@@ -193,7 +193,7 @@ int main(void)
         xtract_windowed(&data[n], BLOCKSIZE, window, windowed);
 
         /* get the spectrum */
-        argd[0] = SAMPLERATE / (double)BLOCKSIZE;
+        argd[0] = SAMPLERATE / (real_t)BLOCKSIZE;
         argd[1] = XTRACT_MAGNITUDE_SPECTRUM;
         argd[2] = 0.f; /* DC component - we expect this to zero for square wave */
         argd[3] = 0.f; /* No Normalisation */
@@ -214,8 +214,8 @@ int main(void)
         /* compute the MFCCs */
         xtract_mfcc(spectrum, BLOCKSIZE >> 1, &mel_filters, mfccs);
 
-        double gated[BLOCKSIZE] = {0};
-        double block_max = 0.0;
+        real_t gated[BLOCKSIZE] = {0};
+        real_t block_max = 0.0;
         
         /* crude noise gate */
         for (uint16_t k = 0; k < BLOCKSIZE; ++k)
@@ -232,7 +232,7 @@ int main(void)
         }
         
         /* normalise */
-        double norm_factor = block_max > 0.0 ? 1.0 / block_max : 0.0;
+        real_t norm_factor = block_max > 0.0 ? 1.0 / block_max : 0.0;
         
         for (uint16_t k = 0; k < BLOCKSIZE; ++k)
         {
@@ -269,13 +269,13 @@ int main(void)
         xtract_last_n(last_n_state, &flux, MAVG_COUNT, NULL, lastn);
 
         argd[0] = 10; /* flux threshold */
-        double flux_current = 0.0;
+        real_t flux_current = 0.0;
         
         peak_found = xtract_peak(lastn, MAVG_COUNT, argd, &flux_current);
         
         if (peak_found == XTRACT_SUCCESS)
         {
-            double peak_time = n / (float)SAMPLERATE;
+            real_t peak_time = n / (float)SAMPLERATE;
             if (peak_time - last_found_peak_time > .05 || peak_time < .05)
             {
                 printf("Onset at %f seconds\n", n / (float)SAMPLERATE);

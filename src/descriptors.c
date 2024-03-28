@@ -32,7 +32,7 @@ xtract_function_descriptor_t *xtract_make_descriptors(void)
 
     int f , F;
     char *name, *p_name, *desc, *p_desc, *author;
-    double *argv_min, *argv_max, *argv_def, *result_min, *result_max;
+    real_t *argv_min, *argv_max, *argv_def, *result_min, *result_max;
     int *argc, *year, *argv_donor;
     xtract_vector_t *data_format, *result_format;
     xtract_unit_t *data_unit, *argv_unit, *result_unit;

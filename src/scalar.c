@@ -41,7 +41,7 @@
 #include "xtract_macros_private.h"
 #include "xtract_globals_private.h"
 
-int xtract_mean(const double *data, const int N, const void *argv, double *result)
+int xtract_mean(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
@@ -56,11 +56,11 @@ int xtract_mean(const double *data, const int N, const void *argv, double *resul
     return XTRACT_SUCCESS;
 }
 
-int xtract_variance(const double *data, const int N, const void *argv, double *result)
+int xtract_variance(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
-    const double arg0 = *(double *)argv;
+    const real_t arg0 = *(real_t *)argv;
 
     *result = 0.0;
 
@@ -72,19 +72,19 @@ int xtract_variance(const double *data, const int N, const void *argv, double *r
     return XTRACT_SUCCESS;
 }
 
-int xtract_standard_deviation(const double *data, const int N, const void *argv, double *result)
+int xtract_standard_deviation(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    *result = sqrt(*(double *)argv);
+    *result = sqrt(*(real_t *)argv);
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_average_deviation(const double *data, const int N, const void *argv, double *result)
+int xtract_average_deviation(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
-    const double arg0 = *(double *)argv;
+    const real_t arg0 = *(real_t *)argv;
 
     *result = 0.0;
 
@@ -96,16 +96,16 @@ int xtract_average_deviation(const double *data, const int N, const void *argv, 
     return XTRACT_SUCCESS;
 }
 
-int xtract_skewness(const double *data, const int N, const void *argv,  double *result)
+int xtract_skewness(const real_t *data, const int N, const void *argv,  real_t *result)
 {
 
     int n = N;
 
-    double temp = 0.0;
-    const double arg0 = ((double *)argv)[0];
-    const double arg1 = ((double *)argv)[1];
+    real_t temp = 0.0;
+    const real_t arg0 = ((real_t *)argv)[0];
+    const real_t arg1 = ((real_t *)argv)[1];
 
-    if (((double *)argv)[1] == 0)
+    if (((real_t *)argv)[1] == 0)
     {
       *result = 0.0;
       return XTRACT_NO_RESULT;
@@ -130,14 +130,14 @@ int xtract_skewness(const double *data, const int N, const void *argv,  double *
     return XTRACT_SUCCESS;
 }
 
-int xtract_kurtosis(const double *data, const int N, const void *argv,  double *result)
+int xtract_kurtosis(const real_t *data, const int N, const void *argv,  real_t *result)
 {
 
     int n = N;
 
-    double temp = 0.0;
-    const double arg0 = ((double *)argv)[0];
-    const double arg1 = ((double *)argv)[1];
+    real_t temp = 0.0;
+    const real_t arg0 = ((real_t *)argv)[0];
+    const real_t arg1 = ((real_t *)argv)[1];
 
     if (arg1 == 0)
     {
@@ -159,13 +159,13 @@ int xtract_kurtosis(const double *data, const int N, const void *argv,  double *
     return XTRACT_SUCCESS;
 }
 
-int xtract_spectral_centroid(const double *data, const int N, const void *argv,  double *result)
+int xtract_spectral_centroid(const real_t *data, const int N, const void *argv,  real_t *result)
 {
 
     int n = (N >> 1);
 
-    const double *freqs, *amps;
-    double FA = 0.0, A = 0.0;
+    const real_t *freqs, *amps;
+    real_t FA = 0.0, A = 0.0;
 
     amps = data;
     freqs = data + n;
@@ -184,20 +184,20 @@ int xtract_spectral_centroid(const double *data, const int N, const void *argv, 
     return XTRACT_SUCCESS;
 }
 
-int xtract_spectral_mean(const double *data, const int N, const void *argv, double *result)
+int xtract_spectral_mean(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     return xtract_spectral_centroid(data, N, argv, result);
 
 }
 
-int xtract_spectral_variance(const double *data, const int N, const void *argv, double *result)
+int xtract_spectral_variance(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int m;
-    double A = 0.0;
-    const double *freqs, *amps;
-    const double arg0 = *(double *)argv;
+    real_t A = 0.0;
+    const real_t *freqs, *amps;
+    const real_t arg0 = *(real_t *)argv;
 
     m = N >> 1;
 
@@ -222,19 +222,19 @@ int xtract_spectral_variance(const double *data, const int N, const void *argv, 
     return XTRACT_SUCCESS;
 }
 
-int xtract_spectral_standard_deviation(const double *data, const int N, const void *argv, double *result)
+int xtract_spectral_standard_deviation(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    *result = sqrt(*(double *)argv);
+    *result = sqrt(*(real_t *)argv);
 
     return XTRACT_SUCCESS;
 }
 
-/*int xtract_spectral_average_deviation(const double *data, const int N, const void *argv, double *result){
+/*int xtract_spectral_average_deviation(const real_t *data, const int N, const void *argv, real_t *result){
 
     int m;
-    double A = 0.0;
-    const double *freqs, *amps;
+    real_t A = 0.0;
+    const real_t *freqs, *amps;
 
     m = N >> 1;
 
@@ -245,7 +245,7 @@ int xtract_spectral_standard_deviation(const double *data, const int N, const vo
 
     while(m--){
         A += amps[m];
-        *result += fabs((amps[m] * freqs[m]) - *(double *)argv);
+        *result += fabs((amps[m] * freqs[m]) - *(real_t *)argv);
     }
 
     *result /= A;
@@ -253,13 +253,13 @@ int xtract_spectral_standard_deviation(const double *data, const int N, const vo
     return XTRACT_SUCCESS;
 }*/
 
-int xtract_spectral_skewness(const double *data, const int N, const void *argv,  double *result)
+int xtract_spectral_skewness(const real_t *data, const int N, const void *argv,  real_t *result)
 {
 
     int m;
-    const double *freqs, *amps;
-    const double arg0 = ((double *)argv)[0];
-    const double arg1 = ((double *)argv)[1];
+    const real_t *freqs, *amps;
+    const real_t arg0 = ((real_t *)argv)[0];
+    const real_t arg1 = ((real_t *)argv)[1];
 
     *result = 0.0;
 
@@ -268,7 +268,7 @@ int xtract_spectral_skewness(const double *data, const int N, const void *argv, 
         return XTRACT_NO_RESULT;
     }
 
-    if (((double *)argv)[1] == 0.0)
+    if (((real_t *)argv)[1] == 0.0)
     {
         *result = 0.0;
         return XTRACT_NO_RESULT;
@@ -287,15 +287,15 @@ int xtract_spectral_skewness(const double *data, const int N, const void *argv, 
     return XTRACT_SUCCESS;
 }
 
-int xtract_spectral_kurtosis(const double *data, const int N, const void *argv,  double *result)
+int xtract_spectral_kurtosis(const real_t *data, const int N, const void *argv,  real_t *result)
 {
 
     int m;
-    const double *freqs, *amps;
-    const double arg0 = ((double *)argv)[0];
-    const double arg1 = ((double *)argv)[1];
+    const real_t *freqs, *amps;
+    const real_t arg0 = ((real_t *)argv)[0];
+    const real_t arg1 = ((real_t *)argv)[1];
 
-    if (((double *)argv)[1] == 0.0)
+    if (((real_t *)argv)[1] == 0.0)
     {
         *result = 0.0;
         return XTRACT_NO_RESULT;
@@ -317,7 +317,7 @@ int xtract_spectral_kurtosis(const double *data, const int N, const void *argv, 
     return XTRACT_SUCCESS;
 }
 
-int xtract_irregularity_k(const double *data, const int N, const void *argv, double *result)
+int xtract_irregularity_k(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n,
@@ -331,12 +331,12 @@ int xtract_irregularity_k(const double *data, const int N, const void *argv, dou
     return XTRACT_SUCCESS;
 }
 
-int xtract_irregularity_j(const double *data, const int N, const void *argv, double *result)
+int xtract_irregularity_j(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N - 1;
 
-    double num = 0.0, den = 0.0;
+    real_t num = 0.0, den = 0.0;
 
     while(n--)
     {
@@ -349,13 +349,13 @@ int xtract_irregularity_j(const double *data, const int N, const void *argv, dou
     return XTRACT_SUCCESS;
 }
 
-int xtract_tristimulus_1(const double *data, const int N, const void *argv, double *result)
+int xtract_tristimulus_1(const real_t *data, const int N, const void *argv, real_t *result)
 {
     int n = N >> 1, i;
-    double den = 0.0, p1 = 0.0, fund = 0.0, temp = 0.0, h = 0.0;
-    const double *freqs;
+    real_t den = 0.0, p1 = 0.0, fund = 0.0, temp = 0.0, h = 0.0;
+    const real_t *freqs;
 
-    fund = *(double *)argv;
+    fund = *(real_t *)argv;
     freqs = data + n;
 
     for(i = 0; i < n; i++)
@@ -381,14 +381,14 @@ int xtract_tristimulus_1(const double *data, const int N, const void *argv, doub
     }
 }
 
-int xtract_tristimulus_2(const double *data, const int N, const void *argv, double *result)
+int xtract_tristimulus_2(const real_t *data, const int N, const void *argv, real_t *result)
 {
     int n = N >> 1, i;
-    double den, p2, p3, p4, ps, fund, temp, h;
+    real_t den, p2, p3, p4, ps, fund, temp, h;
     den = p2 = p3 = p4 = ps = fund = temp = h = 0.0;
-    const double *freqs;
+    const real_t *freqs;
 
-    fund = *(double *)argv;
+    fund = *(real_t *)argv;
     freqs = data + n;
 
     for(i = 0; i < n; i++)
@@ -434,13 +434,13 @@ int xtract_tristimulus_2(const double *data, const int N, const void *argv, doub
 
 }
 
-int xtract_tristimulus_3(const double *data, const int N, const void *argv, double *result)
+int xtract_tristimulus_3(const real_t *data, const int N, const void *argv, real_t *result)
 {
     int n = N >> 1, i;
-    double den = 0.0, num = 0.0, fund = 0.0, temp = 0.0, h = 0.0;
-    const double *freqs;
+    real_t den = 0.0, num = 0.0, fund = 0.0, temp = 0.0, h = 0.0;
+    const real_t *freqs;
 
-    fund = *(double *)argv;
+    fund = *(real_t *)argv;
     freqs = data + n;
 
     for(i = 0; i < n; i++)
@@ -466,15 +466,15 @@ int xtract_tristimulus_3(const double *data, const int N, const void *argv, doub
     }
 }
 
-int xtract_smoothness(const double *data, const int N, const void *argv, double *result)
+int xtract_smoothness(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n; 
     int M = N - 1;
-    double prev = 0.0;
-    double current = 0.0;
-    double next = 0.0;
-    double temp = 0.0;
+    real_t prev = 0.0;
+    real_t current = 0.0;
+    real_t next = 0.0;
+    real_t temp = 0.0;
 
     for(n = 1; n < M; n++)
     {
@@ -500,13 +500,13 @@ int xtract_smoothness(const double *data, const int N, const void *argv, double 
     return XTRACT_SUCCESS;
 }
 
-int xtract_spread(const double *data, const int N, const void *argv, double *result)
+int xtract_spread(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     return xtract_spectral_variance(data, N, argv, result);
 }
 
-int xtract_zcr(const double *data, const int N, const void *argv, double *result)
+int xtract_zcr(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
@@ -515,19 +515,19 @@ int xtract_zcr(const double *data, const int N, const void *argv, double *result
     for(n = 1; n < N; n++)
         if(data[n] * data[n-1] < 0) count++;
 
-    *result = (double)count / N;
+    *result = (real_t)count / N;
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_rolloff(const double *data, const int N, const void *argv, double *result)
+int xtract_rolloff(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
-    double pivot, temp, percentile;
+    real_t pivot, temp, percentile;
 
     pivot = temp = 0.0;
-    percentile = ((double *)argv)[1];
+    percentile = ((real_t *)argv)[1];
 
     while(n--) pivot += data[n];
 
@@ -536,13 +536,13 @@ int xtract_rolloff(const double *data, const int N, const void *argv, double *re
     for(n = 0; temp < pivot; n++)
         temp += data[n];
 
-    *result = n * ((double *)argv)[0];
-    /* *result = (n / (double)N) * (((double *)argv)[1] * .5); */
+    *result = n * ((real_t *)argv)[0];
+    /* *result = (n / (real_t)N) * (((real_t *)argv)[1] * .5); */
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_loudness(const double *data, const int N, const void *argv, double *result)
+int xtract_loudness(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N, rv;
@@ -569,12 +569,12 @@ int xtract_loudness(const double *data, const int N, const void *argv, double *r
     return rv;
 }
 
-int xtract_flatness(const double *data, const int N, const void *argv, double *result)
+int xtract_flatness(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n, count, denormal_found;
 
-    double num, den, temp;
+    real_t num, den, temp;
 
     num = 1.0;
     den = temp = 0.0;
@@ -603,11 +603,11 @@ int xtract_flatness(const double *data, const int N, const void *argv, double *r
         return XTRACT_NO_RESULT;
     }
 
-    num = pow(num, 1.0 / (double)N);
-    den /= (double)N;
+    num = pow(num, 1.0 / (real_t)N);
+    den /= (real_t)N;
 
 
-    *result = (double) (num / den);
+    *result = (real_t) (num / den);
 
     if(denormal_found)
         return XTRACT_DENORMAL_FOUND;
@@ -616,12 +616,12 @@ int xtract_flatness(const double *data, const int N, const void *argv, double *r
 
 }
 
-int xtract_flatness_db(const double *data, const int N, const void *argv, double *result)
+int xtract_flatness_db(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    double flatness;
+    real_t flatness;
 
-    flatness = *(double *)argv;
+    flatness = *(real_t *)argv;
 
     if (flatness <= 0)
         flatness = XTRACT_LOG_LIMIT;
@@ -632,27 +632,27 @@ int xtract_flatness_db(const double *data, const int N, const void *argv, double
 
 }
 
-int xtract_tonality(const double *data, const int N, const void *argv, double *result)
+int xtract_tonality(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    double sfmdb;
+    real_t sfmdb;
 
-    sfmdb = *(double *)argv;
+    sfmdb = *(real_t *)argv;
 
     *result = XTRACT_MIN(sfmdb / -60.0, 1);
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_crest(const double *data, const int N, const void *argv, double *result)
+int xtract_crest(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    double max, mean;
+    real_t max, mean;
 
     max = mean = 0.0;
 
-    max = *(double *)argv;
-    mean = *((double *)argv+1);
+    max = *(real_t *)argv;
+    mean = *((real_t *)argv+1);
 
     *result = max / mean;
 
@@ -660,15 +660,15 @@ int xtract_crest(const double *data, const int N, const void *argv, double *resu
 
 }
 
-int xtract_noisiness(const double *data, const int N, const void *argv, double *result)
+int xtract_noisiness(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    double h, i, p; /*harmonics, inharmonics, partials */
+    real_t h, i, p; /*harmonics, inharmonics, partials */
 
     i = p = h = 0.0;
 
-    h = *(double *)argv;
-    p = *((double *)argv+1);
+    h = *(real_t *)argv;
+    p = *((real_t *)argv+1);
 
     if (p == 0)
     {
@@ -684,7 +684,7 @@ int xtract_noisiness(const double *data, const int N, const void *argv, double *
 
 }
 
-int xtract_rms_amplitude(const double *data, const int N, const void *argv, double *result)
+int xtract_rms_amplitude(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
@@ -693,18 +693,18 @@ int xtract_rms_amplitude(const double *data, const int N, const void *argv, doub
 
     while(n--) *result += XTRACT_SQ(data[n]);
 
-    *result = sqrt(*result / (double)N);
+    *result = sqrt(*result / (real_t)N);
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_spectral_inharmonicity(const double *data, const int N, const void *argv, double *result)
+int xtract_spectral_inharmonicity(const real_t *data, const int N, const void *argv, real_t *result)
 {
     int n = N >> 1, h = 0;
-    double num = 0.0, den = 0.0, fund;
-    const double *freqs, *amps;
+    real_t num = 0.0, den = 0.0, fund;
+    const real_t *freqs, *amps;
 
-    fund = *(double *)argv;
+    fund = *(real_t *)argv;
     amps = data;
     freqs = data + n;
 
@@ -736,20 +736,20 @@ int xtract_spectral_inharmonicity(const double *data, const int N, const void *a
 }
 
 
-int xtract_power(const double *data, const int N, const void *argv, double *result)
+int xtract_power(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     return XTRACT_FEATURE_NOT_IMPLEMENTED;
 
 }
 
-int xtract_odd_even_ratio(const double *data, const int N, const void *argv, double *result)
+int xtract_odd_even_ratio(const real_t *data, const int N, const void *argv, real_t *result)
 {
     int n = N >> 1, h = 0;
-    double odd = 0.0, even = 0.0, fund, temp;
-    const double *freqs;
+    real_t odd = 0.0, even = 0.0, fund, temp;
+    const real_t *freqs;
 
-    fund = *(double *)argv;
+    fund = *(real_t *)argv;
     freqs = data + n;
 
     while(n--)
@@ -780,12 +780,12 @@ int xtract_odd_even_ratio(const double *data, const int N, const void *argv, dou
     }
 }
 
-int xtract_sharpness(const double *data, const int N, const void *argv, double *result)
+int xtract_sharpness(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N, rv;
-    double sl, g; /* sl = specific loudness */
-    double temp;
+    real_t sl, g; /* sl = specific loudness */
+    real_t temp;
 
     sl = g = 0.0;
     temp = 0.0;
@@ -803,18 +803,18 @@ int xtract_sharpness(const double *data, const int N, const void *argv, double *
         temp += n * g * sl;
     }
 
-    temp = 0.11 * temp / (double)N;
-    *result = (double)temp;
+    temp = 0.11 * temp / (real_t)N;
+    *result = (real_t)temp;
 
     return rv;
 
 }
 
-int xtract_spectral_slope(const double *data, const int N, const void *argv, double *result)
+int xtract_spectral_slope(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    const double *freqs, *amps;
-    double f, a,
+    const real_t *freqs, *amps;
+    real_t f, a,
           F, A, FA, FXTRACT_SQ; /* sums of freqs, amps, freq * amps, freq squared */
     int n, M;
 
@@ -834,7 +834,7 @@ int xtract_spectral_slope(const double *data, const int N, const void *argv, dou
         FXTRACT_SQ += f * f;
     }
 
-    double temp = (double)M * FXTRACT_SQ - F * F;
+    real_t temp = (real_t)M * FXTRACT_SQ - F * F;
 
     if (A == 0 || temp == 0)
     {
@@ -842,13 +842,13 @@ int xtract_spectral_slope(const double *data, const int N, const void *argv, dou
         return XTRACT_NO_RESULT;
     }
 
-    *result = (1.0 / A) * ((double)M * FA - F * A) / temp;
+    *result = (1.0 / A) * ((real_t)M * FA - F * A) / temp;
 
     return XTRACT_SUCCESS;
 
 }
 
-int xtract_lowest_value(const double *data, const int N, const void *argv, double *result)
+int xtract_lowest_value(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
@@ -857,7 +857,7 @@ int xtract_lowest_value(const double *data, const int N, const void *argv, doubl
 
     while(n--)
     {
-        if(data[n] > *(double *)argv)
+        if(data[n] > *(real_t *)argv)
             *result = XTRACT_MIN(*result, data[n]);
     }
 
@@ -867,7 +867,7 @@ int xtract_lowest_value(const double *data, const int N, const void *argv, doubl
     return XTRACT_SUCCESS;
 }
 
-int xtract_highest_value(const double *data, const int N, const void *argv, double *result)
+int xtract_highest_value(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
@@ -881,7 +881,7 @@ int xtract_highest_value(const double *data, const int N, const void *argv, doub
 }
 
 
-int xtract_sum(const double *data, const int N, const void *argv, double *result)
+int xtract_sum(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
@@ -895,7 +895,7 @@ int xtract_sum(const double *data, const int N, const void *argv, double *result
 
 }
 
-int xtract_nonzero_count(const double *data, const int N, const void *argv, double *result)
+int xtract_nonzero_count(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N;
@@ -909,10 +909,10 @@ int xtract_nonzero_count(const double *data, const int N, const void *argv, doub
 
 }
 
-int xtract_hps(const double *data, const int N, const void *argv, double *result)
+int xtract_hps(const real_t *data, const int N, const void *argv, real_t *result)
 {
     int n, M, i, peak_index, position1_lwr;
-    double tempProduct, peak, largest1_lwr, ratio1;
+    real_t tempProduct, peak, largest1_lwr, ratio1;
 
     n = N / 2;
 
@@ -961,24 +961,24 @@ int xtract_hps(const double *data, const int N, const void *argv, double *result
     return XTRACT_SUCCESS;
 }
 
-int xtract_f0(const double *data, const int N, const void *argv, double *result)
+int xtract_f0(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int M, tau, n;
-    double sr;
+    real_t sr;
     size_t bytes;
-    double f0, err_tau_1, err_tau_x, array_max,
+    real_t f0, err_tau_1, err_tau_x, array_max,
           threshold_peak, threshold_centre,
           *input;
 
-    sr = *(double *)argv;
+    sr = *(real_t *)argv;
     if(sr == 0)
         sr = 44100.0;
 
-    input = (double*)malloc(bytes = N * sizeof(double));
-    input = (double*)memcpy(input, data, bytes);
-    /*  threshold_peak = *((double *)argv+1);
-    threshold_centre = *((double *)argv+2);
+    input = (real_t*)malloc(bytes = N * sizeof(real_t));
+    input = (real_t*)memcpy(input, data, bytes);
+    /*  threshold_peak = *((real_t *)argv+1);
+    threshold_centre = *((real_t *)argv+2);
     printf("peak: %.2\tcentre: %.2\n", threshold_peak, threshold_centre);*/
     /* add temporary dynamic control over thresholds to test clipping effects */
 
@@ -1042,21 +1042,21 @@ int xtract_f0(const double *data, const int N, const void *argv, double *result)
     return XTRACT_NO_RESULT;
 }
 
-int xtract_failsafe_f0(const double *data, const int N, const void *argv, double *result)
+int xtract_failsafe_f0(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    double *spectrum = NULL, argf[4], *peaks = NULL, return_code, sr;
+    real_t *spectrum = NULL, argf[4], *peaks = NULL, return_code, sr;
 
     return_code = xtract_f0(data, N, argv, result);
 
     if(return_code == XTRACT_NO_RESULT)
     {
-        sr = *(double *)argv;
+        sr = *(real_t *)argv;
         if(sr == 0)
             sr = 44100.0;
-        spectrum = (double *)malloc(N * sizeof(double));
-        memset(spectrum, 0, N * sizeof(double));
-        peaks = (double *)malloc(N * sizeof(double));
+        spectrum = (real_t *)malloc(N * sizeof(real_t));
+        memset(spectrum, 0, N * sizeof(real_t));
+        peaks = (real_t *)malloc(N * sizeof(real_t));
         argf[0] = sr / N;
         argf[1] = XTRACT_MAGNITUDE_SPECTRUM;
         argf[2] = 0.0f;
@@ -1075,9 +1075,9 @@ int xtract_failsafe_f0(const double *data, const int N, const void *argv, double
 
 }
 
-int xtract_wavelet_f0(const double *data, const int N, const void *argv, double *result)
+int xtract_wavelet_f0(const real_t *data, const int N, const void *argv, real_t *result)
 {
-    /* double sr = *(double *)argv; */
+    /* real_t sr = *(real_t *)argv; */
 
     *result = dywapitch_computepitch(&wavelet_f0_state, data, 0, N);
 
@@ -1089,10 +1089,10 @@ int xtract_wavelet_f0(const double *data, const int N, const void *argv, double 
     return XTRACT_SUCCESS;
 }
 
-int xtract_midicent(const double *data, const int N, const void *argv, double *result)
+int xtract_midicent(const real_t *data, const int N, const void *argv, real_t *result)
 {
-    double f0 = *(double *)argv;
-    double note = 0.0;
+    real_t f0 = *(real_t *)argv;
+    real_t note = 0.0;
       
     note = 69 + log(f0 / 440.f) * 17.31234;
     note *= 100;
@@ -1108,12 +1108,12 @@ int xtract_midicent(const double *data, const int N, const void *argv, double *r
     return XTRACT_SUCCESS;
 }
 
-int xtract_peak(const double *data, const int N, const void *argv, double *result)
+int xtract_peak(const real_t *data, const int N, const void *argv, real_t *result)
 {
-    double threshold = *(double *)argv;
-    double current = data[N - 1];
-    double average = 0.0;
-    double maximum = -DBL_MAX;
+    real_t threshold = *(real_t *)argv;
+    real_t current = data[N - 1];
+    real_t average = 0.0;
+    real_t maximum = -DBL_MAX;
     
     for (uint32_t n = 0; n < (uint32_t)N; ++n)
     {
@@ -1124,7 +1124,7 @@ int xtract_peak(const double *data, const int N, const void *argv, double *resul
         }
     }
     
-    average /= (double)N;
+    average /= (real_t)N;
         
     if (current != maximum)
     {

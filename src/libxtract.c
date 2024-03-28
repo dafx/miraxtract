@@ -24,7 +24,7 @@
 #include "xtract/libxtract.h"
 #define XTRACT_H
 
-int(*xtract[])(const double *, const int, const void *, double *) =
+int(*xtract[])(const real_t *, const int, const void *, real_t *) =
 {
     /* xtract_scalar.h */
     xtract_mean,

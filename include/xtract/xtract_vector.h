@@ -50,7 +50,7 @@ extern "C" {
  * \note Before calling xtract_spectrum(), the FFT must be initialised by calling xtract_init_fft(N, XTRACT_SPECTRUM)
  *
  */
-int xtract_spectrum(const double *data, const int N, const void *argv, double *result);
+int xtract_spectrum(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract autocorrelation from time domain signal using FFT based method
  * 
@@ -59,7 +59,7 @@ int xtract_spectrum(const double *data, const int N, const void *argv, double *r
  * \param *argv: a pointer to NULL 
  * \param *result: the autocorrelation of N values from the array pointed to by *data 
  */
-int xtract_autocorrelation_fft(const double *data, const int N, const void *argv, double *result);
+int xtract_autocorrelation_fft(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract Mel Frequency Cepstral Coefficients based on a method described by Rabiner
  * 
@@ -70,7 +70,7 @@ int xtract_autocorrelation_fft(const double *data, const int N, const void *argv
  * 
  * The data structure pointed to by *argv must be obtained by first calling xtract_init_mfcc
  */
-int xtract_mfcc(const double *data, const int N, const void *argv, double *result);
+int xtract_mfcc(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract Mel based Multi-Band Spectral Entropy Signature coefficients
  *
@@ -82,7 +82,7 @@ int xtract_mfcc(const double *data, const int N, const void *argv, double *resul
  * The data structure pointed to by *argv must be obtained by first calling xtract_init_mfcc.
  * The method is described by: Rincon et al: A Context-Aware Baby Monitor for the Automatic Selective Archiving of the Language of Infants (2013)
  */
-int xtract_mmbses(const double *data, const int N, const void *argv, double *result);
+int xtract_mmbses(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract centroids of the spectral mel subbands
  *
@@ -93,7 +93,7 @@ int xtract_mmbses(const double *data, const int N, const void *argv, double *res
  *
  * Note: for a more 'accurate' result *result from xtract_peak_spectrum() can be passed in. This gives the interpolated peak frequency locations.
  */
-int xtract_spectral_subband_centroids(const double *data, const int N, const void *argv, double *result);
+int xtract_spectral_subband_centroids(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract the Discrete Cosine transform of a time domain signal
  * \param *data: a pointer to the first element in an array of doubles representing an audio vector
@@ -101,7 +101,7 @@ int xtract_spectral_subband_centroids(const double *data, const int N, const voi
  * \param *argv: a pointer to NULL 
  * \param *result: a pointer to an array containing resultant dct coefficients
  */
-int xtract_dct(const double *data, const int N, const void *argv, double *result);
+int xtract_dct(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract autocorrelation from time domain signal using time-domain autocorrelation technique 
  * 
@@ -110,7 +110,7 @@ int xtract_dct(const double *data, const int N, const void *argv, double *result
  * \param *argv: a pointer to NULL 
  * \param *result: the autocorrelation of N values from the array pointed to by *data 
  */
-int xtract_autocorrelation(const double *data, const int N, const void *argv, double *result);
+int xtract_autocorrelation(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract Average Magnitude Difference Function from time domain signal 
  * 
@@ -119,7 +119,7 @@ int xtract_autocorrelation(const double *data, const int N, const void *argv, do
  * \param *argv: a pointer to NULL 
  * \param *result: the AMDF of N values from the array pointed to by *data 
  */
-int xtract_amdf(const double *data, const int N, const void *argv, double *result);
+int xtract_amdf(const real_t *data, const int N, const void *argv, real_t *result);
     
 /** \brief Extract Average Squared Difference Function from time domain signal 
  * 
@@ -128,7 +128,7 @@ int xtract_amdf(const double *data, const int N, const void *argv, double *resul
  * \param *argv: a pointer to NULL 
  * \param *result: the ASDF of N values from the array pointed to by *data 
  */
-int xtract_asdf(const double *data, const int N, const void *argv, double *result);
+int xtract_asdf(const real_t *data, const int N, const void *argv, real_t *result);
     
 /** \brief Extract Bark band coefficients based on a method   
  * \param *data: a pointer to the first element in an array of doubles representing the magnitude coefficients from the magnitude spectrum of an audio vector, (e.g. the first half of the array pointed to by *result from xtract_spectrum().
@@ -139,7 +139,7 @@ int xtract_asdf(const double *data, const int N, const void *argv, double *resul
  * The limits array pointed to by *argv must be obtained by first calling xtract_init_bark
  * 
  */
-int xtract_bark_coefficients(const double *data, const int N, const void *argv, double *result);
+int xtract_bark_coefficients(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract the amplitude and frequency of spectral peaks from a magnitude spectrum
  * \param *data: a pointer to an array of size N containing N magnitude/power/log magnitude/log power coefficients. (e.g. the first half of the array pointed to by *result from xtract_spectrum().
@@ -148,7 +148,7 @@ int xtract_bark_coefficients(const double *data, const int N, const void *argv, 
  * \param *result: a pointer to an array of size N * 2 containing N magnitude/power/log magnitude/log power coefficients and N bin frequencies.
  *
  */
-int xtract_peak_spectrum(const double *data, const int N, const void *argv, double *result);
+int xtract_peak_spectrum(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract the harmonic spectrum of from a of a peak spectrum 
  * \param *data: a pointer to the first element in an array of doubles representing the peak spectrum of an audio vector (e.g. *result from  xtract_peaks). It is expected that the first half of the array pointed to by *data will contain amplitudes for each peak considered, and the the second half will contain the respective frequencies
@@ -156,7 +156,7 @@ int xtract_peak_spectrum(const double *data, const int N, const void *argv, doub
  * \param *argv: a pointer to an array containing the fundamental (f0) of the spectrum, and a threshold (t) where 0<=t<=1.0, and t determines the distance from the nearest harmonic number within which a partial can be considered harmonic.
  * \param *result: a pointer to an array of size N containing N/2 magnitude coefficients and N/2 bin frequencies.
  */
-int xtract_harmonic_spectrum(const double *data, const int N, const void *argv, double *result);
+int xtract_harmonic_spectrum(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract Linear Predictive Coding Coefficients
  * 
@@ -171,26 +171,26 @@ int xtract_harmonic_spectrum(const double *data, const int N, const void *argv, 
  * 
  * An array of size 2 * (N - 1) must be allocated, and *result must point to its first element.
  */
-int xtract_lpc(const double *data, const int N, const void *argv, double *result);
+int xtract_lpc(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract Linear Predictive Coding Cepstral Coefficients
  * 
  * \param *data: a pointer to the first element in an array of LPC coeffiecients e.g. a pointer to the second half of the array pointed to by *result from xtract_lpc()
  * \param N: the number of LPC coefficients to be considered
- * \param *argv: a pointer to a double representing the order of the result vector. This must be a whole number. According to Rabiner and Juang the ratio between the number (p) of LPC coefficients and the order (Q) of the LPC cepstrum is given by Q ~ (3/2)p where Q > p.
+ * \param *argv: a pointer to a real_t representing the order of the result vector. This must be a whole number. According to Rabiner and Juang the ratio between the number (p) of LPC coefficients and the order (Q) of the LPC cepstrum is given by Q ~ (3/2)p where Q > p.
  * \param *result: a pointer to an array containing the resultant LPCC.
  * 
  * An array of size Q, where Q is given by argv[0] must be allocated, and *result must point to its first element.
  *
  */
-int xtract_lpcc(const double *data, const int N, const void *argv, double *result);
+int xtract_lpcc(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Extract subbands from a spectrum
  *
  * \param *data: a pointer to an array of size N containing N magnitude/power/log magnitude/log power coefficients. (e.g. the first half of the array pointed to by *result from xtract_spectrum().
  * \param N: the number of elements from the array pointed to by *data to be considered
  * \param *argv: A pointer to an array containing four integers. The first represents the \a scalar extraction function to applied to each subband e.g. XTRACT_SUM or XTRACT_MEAN, the second represents the number of subbands required, and the third represents the frequency scale to be used for the subband bounds as defined in the enumeration xtract_subband_scales_ (libxtract.h). The fourth integer represent the start point of the subbands as a location in the input array as pointed to by *data (e.g. a value of 5 would start the subband extraction at bin 5)
- * \param *result: A pointer to an array containing the resultant subband values. The calling function is responsible for allocating and freeing memory for *result. xtract_subbands() assumes that at least argv[1] * sizeof(double) bytes have been allocated. If the requested nbands extends the subband range beyond N, then the remaining bands will be set to 0. If the array pointed to by *result has more than argv[1] elements, the superfluous elements will be unchanged.
+ * \param *result: A pointer to an array containing the resultant subband values. The calling function is responsible for allocating and freeing memory for *result. xtract_subbands() assumes that at least argv[1] * sizeof(real_t) bytes have been allocated. If the requested nbands extends the subband range beyond N, then the remaining bands will be set to 0. If the array pointed to by *result has more than argv[1] elements, the superfluous elements will be unchanged.
  *
  * xtract_subbands() divides a spectrum into subbands and applies the function given by argv[0] to the values in each subband to give a 'reduced' representation of the spectrum as *result
  *
@@ -201,7 +201,7 @@ int xtract_lpcc(const double *data, const int N, const void *argv, double *resul
  * It is assumed that a sensible function will be given in argv[0], and for this function argv will always be NULL. Sensible values for argv[0] are XTRACT_MEAN and XTRACT_SUM, although something like XTRACT_IRREGULARITY_K might yield interesting results.
  *
  */
-int xtract_subbands(const double *data, const int N, const void *argv, double *result);
+int xtract_subbands(const real_t *data, const int N, const void *argv, real_t *result);
 /** @} */
 
 #ifdef __cplusplus

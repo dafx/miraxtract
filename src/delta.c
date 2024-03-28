@@ -26,7 +26,7 @@
 #include <math.h>
 #include "xtract/libxtract.h"
 
-int xtract_flux(const double *data, const int N, const void *argv , double *result)
+int xtract_flux(const real_t *data, const int N, const void *argv , real_t *result)
 {
 
     /* FIX: don't be lazy -- take the lnorm of the difference vector! */
@@ -34,7 +34,7 @@ int xtract_flux(const double *data, const int N, const void *argv , double *resu
 
 }
 
-int xtract_lnorm(const double *data, const int N, const void *argv , double *result)
+int xtract_lnorm(const real_t *data, const int N, const void *argv , real_t *result)
 {
 
     int n,
@@ -42,11 +42,11 @@ int xtract_lnorm(const double *data, const int N, const void *argv , double *res
         normalise,
         k = 0;
 
-    double order;
+    real_t order;
 
-    order = *(double *)argv;
-    type = *((double *)argv+1);
-    normalise = (int)*((double *)argv+2);
+    order = *(real_t *)argv;
+    type = *((real_t *)argv+1);
+    normalise = (int)*((real_t *)argv+2);
 
     order = order > 0 ? order : 2.0;
 
@@ -91,24 +91,24 @@ int xtract_lnorm(const double *data, const int N, const void *argv , double *res
 
 }
 
-int xtract_attack_time(const double *data, const int N, const void *argv , double *result)
+int xtract_attack_time(const real_t *data, const int N, const void *argv , real_t *result)
 {
 
     return XTRACT_FEATURE_NOT_IMPLEMENTED;
 
 }
 
-int xtract_decay_time(const double *data, const int N, const void *argv, double *result)
+int xtract_decay_time(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     return XTRACT_FEATURE_NOT_IMPLEMENTED;
 
 }
 
-int xtract_difference_vector(const double *data, const int N, const void *argv, double *result)
+int xtract_difference_vector(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    const double *frame1,
+    const real_t *frame1,
           *frame2;
 
     int n;
