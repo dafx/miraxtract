@@ -6,6 +6,8 @@
 
 #include "catch.hpp"
 
+#include <vector>
+
 
 SCENARIO( "F0 is correctly detected for a sine wave", "[xtract_f0]" )
 {
@@ -18,14 +20,28 @@ SCENARIO( "F0 is correctly detected for a sine wave", "[xtract_f0]" )
         real_t samplerate = 44100;
         real_t result = -1.0;
         real_t amplitude = 1.0;
-        real_t table[blocksize];
+        std::vector<real_t> vec(blocksize);
+
+        WHEN( "the frequency is 43.06640625 Hz" ) // period of exactly 256 samples: 2 cycles in the block
+        {
+            real_t frequency = 43.06640625;
+
+            xttest_gen_sine(vec.data(), blocksize, samplerate, frequency, amplitude);
+            int rv = xtract_f0(vec.data(), blocksize, &samplerate, &result);
+
+            THEN( "frequency detection fails correctly (XTRACT_NO_RESULT is returned, result set to 0.0)" )
+            {
+                REQUIRE(rv == XTRACT_NO_RESULT); 
+                REQUIRE(result == 0.0);
+            }
+        }
 
         WHEN( "the frequency is 86.1328125 Hz" ) // period of exactly 512 samples: 1 cycles in the block
         {
             real_t frequency = 86.1328125;
 
-            xttest_gen_sine(table, blocksize, samplerate, frequency, amplitude);
-            int rv = xtract_f0(table, blocksize, &samplerate, &result);
+            xttest_gen_sine(vec.data(), blocksize, samplerate, frequency, amplitude);
+            int rv = xtract_f0(vec.data(), blocksize, &samplerate, &result);
 
             THEN( "frequency detection fails correctly (XTRACT_NO_RESULT is returned, result set to 0.0)" )
             {
@@ -38,8 +54,8 @@ SCENARIO( "F0 is correctly detected for a sine wave", "[xtract_f0]" )
         {
             real_t frequency = 172.265625;
 
-            xttest_gen_sine(table, blocksize, samplerate, frequency, amplitude);
-            int rv = xtract_f0(table, blocksize, &samplerate, &result);
+            xttest_gen_sine(vec.data(), blocksize, samplerate, frequency, amplitude);
+            int rv = xtract_f0(vec.data(), blocksize, &samplerate, &result);
 
             THEN( "frequency detection fails correctly (XTRACT_NO_RESULT is returned, result set to 0.0)" )
             {
@@ -53,8 +69,8 @@ SCENARIO( "F0 is correctly detected for a sine wave", "[xtract_f0]" )
         {
             real_t frequency = 344.53125;
 
-            xttest_gen_sine(table, blocksize, samplerate, frequency, amplitude);
-            xtract_f0(table, blocksize, &samplerate, &result);
+            xttest_gen_sine(vec.data(), blocksize, samplerate, frequency, amplitude);
+            xtract_f0(vec.data(), blocksize, &samplerate, &result);
 
             THEN( "the detected F0 is accurate to the nearest MIDI cent" )
             {
@@ -70,8 +86,8 @@ SCENARIO( "F0 is correctly detected for a sine wave", "[xtract_f0]" )
             {
                 real_t amplitude = 0.01;
 
-                xttest_gen_sine(table, blocksize, samplerate, frequency, amplitude);
-                xtract_f0(table, blocksize, &samplerate, &result);
+                xttest_gen_sine(vec.data(), blocksize, samplerate, frequency, amplitude);
+                xtract_f0(vec.data(), blocksize, &samplerate, &result);
 
                 THEN( "the detected F0 is accurate to the nearest MIDI cent" )
                 {
