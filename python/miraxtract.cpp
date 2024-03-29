@@ -44,7 +44,7 @@ Mesh get_mesh() {
 }
 
 
-NB_MODULE(pyxtract, m) {
+NB_MODULE(miraxtract, m) {
     m.def("add", &add, "a"_a, "b"_a = 1,
         "This function adds two numbers and increments if only one is provided.");
 

@@ -47,10 +47,10 @@ find_package(nanobind CONFIG REQUIRED)
 
 # We are now ready to compile the actual extension module
 nanobind_add_module(
-        pyxtract
-        python/nb_xtract.cpp
+        miraxtract
+        python/miraxtract.cpp
 )
-target_link_libraries(pyxtract PRIVATE xtract)
+target_link_libraries(miraxtract PRIVATE xtract)
 
 # Install directive for scikit-build
-install(TARGETS pyxtract LIBRARY DESTINATION .)
+install(TARGETS miraxtract LIBRARY DESTINATION .)
