@@ -26,6 +26,7 @@
 #include <math.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <assert.h>
 
 #include "fft.h"
 
@@ -35,10 +36,24 @@
 #include "xtract_globals_private.h"
 
 #ifdef USE_OOURA
+thread_local struct xtract_ooura_data_ ooura_data_dct;
+thread_local struct xtract_ooura_data_ ooura_data_mfcc;
+thread_local struct xtract_ooura_data_ ooura_data_spectrum;
+thread_local struct xtract_ooura_data_ ooura_data_autocorrelation_fft;
+#else
+thread_local xtract_vdsp_data vdsp_data_dct;
+thread_local xtract_vdsp_data vdsp_data_mfcc;
+thread_local xtract_vdsp_data vdsp_data_spectrum;
+thread_local xtract_vdsp_data vdsp_data_autocorrelation_fft;
+#endif
+
+thread_local dywapitchtracker wavelet_f0_state;
+
+#ifdef USE_OOURA
 void xtract_init_ooura_data(xtract_ooura_data *ooura_data, unsigned int N)
 {
-    ooura_data->ooura_ip  = (int *)calloc(2 + sqrt((double)N), sizeof(int));
-    ooura_data->ooura_w   = (double *)calloc(N * 5 / 4, sizeof(double));
+    ooura_data->ooura_ip  = (int *)calloc(2 + sqrt((real_t)N), sizeof(int));
+    ooura_data->ooura_w   = (real_t *)calloc(N * 5 / 4, sizeof(real_t));
     ooura_data->initialised = true;
 }
 
@@ -120,8 +135,8 @@ void xtract_free_ooura_(void)
 void xtract_init_vdsp_data(xtract_vdsp_data *vdsp_data, unsigned int N)
 {
     vdsp_data->setup = vDSP_create_fftsetupD(log2f(N), FFT_RADIX2);
-    vdsp_data->fft.realp = (double *) malloc((N >> 1) * sizeof(double) + 1);
-    vdsp_data->fft.imagp = (double *) malloc((N >> 1) * sizeof(double) + 1);
+    vdsp_data->fft.realp = (real_t *) malloc((N >> 1) * sizeof(real_t) + 1);
+    vdsp_data->fft.imagp = (real_t *) malloc((N >> 1) * sizeof(real_t) + 1);
     vdsp_data->log2N = log2f(N);
     vdsp_data->initialised = true;
 }
@@ -131,8 +146,6 @@ void xtract_free_vdsp_data(xtract_vdsp_data *vdsp_data)
     free(vdsp_data->fft.realp);
     free(vdsp_data->fft.imagp);
     vDSP_destroy_fftsetupD(vdsp_data->setup);
-    vdsp_data->fft.realp   = NULL;
-    vdsp_data->fft.imagp   = NULL;
     vdsp_data->initialised = false;
 }
 
@@ -220,10 +233,10 @@ void xtract_free_fft(void)
 }
 
 
-int xtract_init_bark(int N, double sr, int *band_limits)
+int xtract_init_bark(int N, real_t sr, int *band_limits)
 {
 
-    double  edges[] = {0, 100, 200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700, 9500, 12000, 15500, 20500, 27000}; /* Takes us up to sr = 54kHz (CCRMA: JOS)*/
+    real_t  edges[] = {0, 100, 200, 300, 400, 510, 630, 770, 920, 1080, 1270, 1480, 1720, 2000, 2320, 2700, 3150, 3700, 4400, 5300, 6400, 7700, 9500, 12000, 15500, 20500, 27000}; /* Takes us up to sr = 54kHz (CCRMA: JOS)*/
 
     int bands = XTRACT_BARK_BANDS;
 
@@ -234,11 +247,11 @@ int xtract_init_bark(int N, double sr, int *band_limits)
     return XTRACT_SUCCESS;
 }
 
-int xtract_init_mfcc(int N, double nyquist, int style, double freq_min, double freq_max, int freq_bands, double **fft_tables)
+int xtract_init_mfcc(int N, real_t nyquist, int style, real_t freq_min, real_t freq_max, int freq_bands, real_t **fft_tables)
 {
 
     int n, i, k, *fft_peak, M, next_peak;
-    double norm, mel_freq_max, mel_freq_min, norm_fact, height, inc, val,
+    real_t norm, mel_freq_max, mel_freq_min, norm_fact, height, inc, val,
           freq_bw_mel, *mel_peak, *height_norm, *lin_peak;
 
     mel_peak = height_norm = lin_peak = NULL;
@@ -254,7 +267,7 @@ int xtract_init_mfcc(int N, double nyquist, int style, double freq_min, double f
     mel_freq_min = 1127 * log(1 + freq_min / 700);
     freq_bw_mel = (mel_freq_max - mel_freq_min) / freq_bands;
 
-    mel_peak = (double *)malloc((freq_bands + 2) * sizeof(double));
+    mel_peak = (real_t *)malloc((freq_bands + 2) * sizeof(real_t));
     /* +2 for zeros at start and end */
     
     if (mel_peak == NULL)
@@ -263,7 +276,7 @@ int xtract_init_mfcc(int N, double nyquist, int style, double freq_min, double f
         return XTRACT_MALLOC_FAILED;
     }
     
-    lin_peak = (double *)malloc((freq_bands + 2) * sizeof(double));
+    lin_peak = (real_t *)malloc((freq_bands + 2) * sizeof(real_t));
     
     if (lin_peak == NULL)
     {
@@ -282,7 +295,7 @@ int xtract_init_mfcc(int N, double nyquist, int style, double freq_min, double f
         return XTRACT_MALLOC_FAILED;
     }
     
-    height_norm = (double *)malloc(freq_bands * sizeof(double));
+    height_norm = (real_t *)malloc(freq_bands * sizeof(real_t));
     
     if (height_norm == NULL)
     {
@@ -318,6 +331,7 @@ int xtract_init_mfcc(int N, double nyquist, int style, double freq_min, double f
         }
         else
         {
+            assert(n+2 < freq_bands + 2);
             height = 2 / (lin_peak[n + 2] - lin_peak[n]);
             norm_fact = norm / (2 / (lin_peak[2] - lin_peak[0]));
         }
@@ -387,11 +401,11 @@ int xtract_init_wavelet_f0_state(void)
     return XTRACT_SUCCESS;
 }
 
-double *xtract_init_window(const int N, const int type)
+real_t *xtract_init_window(const int N, const int type)
 {
-    double *window;
+    real_t *window;
 
-    window = (double*)malloc(N * sizeof(double));
+    window = (real_t*)malloc(N * sizeof(real_t));
 
     switch (type)
     {
@@ -430,7 +444,7 @@ double *xtract_init_window(const int N, const int type)
     return window;
 }
 
-void xtract_free_window(double *window)
+void xtract_free_window(real_t *window)
 {
     free(window);
 }

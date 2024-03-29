@@ -38,32 +38,34 @@
 #define M_PI 3.14159265358979323846264338327
 #endif
 
-int xtract_spectrum(const double *data, const int N, const void *argv, double *result)
+thread_local real_t** dct_cos_table = NULL;
+thread_local int dct_cos_table_dim = 0;
+
+int xtract_spectrum(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int vector     = 0;
     int withDC     = 0;
     int normalise  = 0;
-    double q        = 0.0;
-    double temp     = 0.0;
-    double max      = 0.0;
-    double NxN      = XTRACT_SQ(N);
-    double *marker  = NULL;
-    double real = 0.0;
-    double imag = 0.0;
+    real_t q        = 0.0;
+    real_t temp     = 0.0;
+    real_t max      = 0.0;
+    real_t NxN      = XTRACT_SQ((real_t)N);
+    real_t real = 0.0;
+    real_t imag = 0.0;
     unsigned int n = 0;
     unsigned int m = 0;
     unsigned int M = N >> 1;
 #ifdef USE_OOURA
-    double *fft = NULL;
+    real_t *fft = NULL;
 #else 
     DSPDoubleSplitComplex *fft = NULL;
 #endif
 
-    q = *(double *)argv;
-    vector = (int)*((double *)argv+1);
-    withDC = (int)*((double *)argv+2);
-    normalise = (int)*((double *)argv+3);
+    q = *(real_t *)argv;
+    vector = (int)*((real_t *)argv+1);
+    withDC = (int)*((real_t *)argv+2);
+    normalise = (int)*((real_t *)argv+3);
 
     XTRACT_CHECK_q;
 #ifdef USE_OOURA
@@ -83,9 +85,9 @@ int xtract_spectrum(const double *data, const int N, const void *argv, double *r
      * the output format is
      * a[0] - DC, a[1] - nyquist, a[2...N-1] - remaining bins
      */
-    fft = (double*)malloc(N * sizeof(double));
+    fft = (real_t*)malloc(N * sizeof(real_t));
     assert(fft != NULL);
-    memcpy(fft, data, N * sizeof(double));
+    memcpy(fft, data, N * sizeof(real_t));
 
     rdft(N, 1, fft, ooura_data_spectrum.ooura_ip, 
             ooura_data_spectrum.ooura_w);
@@ -102,37 +104,51 @@ int xtract_spectrum(const double *data, const int N, const void *argv, double *r
         case XTRACT_LOG_MAGNITUDE_SPECTRUM:
         for(n = 0, m = 0; m < M; ++n, ++m)
         {
-            marker = &result[m];
-
             if(n==0 && !withDC) /* discard DC and keep Nyquist */
             {
                 ++n;
-#ifdef USE_OOURA
-                marker = &result[M-1];
-#endif
             }
 #ifdef USE_OOURA
-            if(n==1 && withDC) /* discard Nyquist */
+			/*
+            if(n==1 && withDC) // discard Nyquist
             {
                 ++n;
             }
-            if(n == M)
-            {
-                XTRACT_SET_FREQUENCY;
-                break;
-            }
-
-            real = fft[n*2];
-            imag = fft[n*2+1];
+			*/
+			// OOURA discards the always 0 imaginary of DC and Nyquists
+			if (n == M && !withDC)
+			{
+				real = fft[1];
+				imag = 0.0;
+			}
+			else if (n == 0 && withDC) {
+				real = fft[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft[n * 2];
+				imag = fft[n * 2 + 1];
+			}
 #else
-            real = fft->realp[n];
-            imag = fft->realp[n];
+			if (n == M && !withDC)
+			{
+				real = fft->imagp[0];
+				imag = 0.0;
+		}
+			else if (n == 0 && withDC) {
+				real = fft->realp[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft->realp[n];
+				imag = fft->imagp[n];
+			}
 #endif
 
             temp = XTRACT_SQ(real) + XTRACT_SQ(imag);
             if (temp > XTRACT_LOG_LIMIT)
             {
-                temp = log(sqrt(temp) / (double)N);
+                temp = log(sqrt(temp) / (real_t)N);
             }
             else
             {
@@ -151,32 +167,45 @@ int xtract_spectrum(const double *data, const int N, const void *argv, double *r
     case XTRACT_POWER_SPECTRUM:
         for(n = 0, m = 0; m < M; ++n, ++m)
         {
-
-            marker = &result[m];
-
             if(n==0 && !withDC) /* discard DC and keep Nyquist */
             {
                 ++n;
-#ifdef USE_OOURA
-                marker = &result[M-1];
-#endif
             }
 #ifdef USE_OOURA
-            if(n==1 && withDC) /* discard Nyquist */
-            {
-                ++n;
-            }
-            if(n == M)
-            {
-                XTRACT_SET_FREQUENCY;
-                break;
-            }
-
-            real = fft[n*2];
-            imag = fft[n*2+1];
+			/*
+			if(n==1 && withDC) // discard Nyquist
+			{
+				++n;
+			}
+			*/
+			// OOURA discards the always 0 imaginary of DC and Nyquists
+			if (n == M && !withDC)
+			{
+				real = fft[1];
+				imag = 0.0;
+			}
+			else if (n == 0 && withDC) {
+				real = fft[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft[n * 2];
+				imag = fft[n * 2 + 1];
+			}
 #else
-            real = fft->realp[n];
-            imag = fft->realp[n];
+			if (n == M && !withDC)
+			{
+				real = fft->imagp[0];
+				imag = 0.0;
+		}
+			else if (n == 0 && withDC) {
+				real = fft->realp[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft->realp[n];
+				imag = fft->imagp[n];
+			}
 #endif
 
             result[m] = (XTRACT_SQ(real) + XTRACT_SQ(imag)) / NxN;
@@ -188,31 +217,45 @@ int xtract_spectrum(const double *data, const int N, const void *argv, double *r
     case XTRACT_LOG_POWER_SPECTRUM:
         for(n = 0, m = 0; m < M; ++n, ++m)
         {
-            marker = &result[m];
-
             if(n==0 && !withDC) /* discard DC and keep Nyquist */
             {
                 ++n;
-#ifdef USE_OOURA
-                marker = &result[M-1];
-#endif
             }
 #ifdef USE_OOURA
-            if(n==1 && withDC) /* discard Nyquist */
-            {
-                ++n;
-            }
-            if(n == M)
-            {
-                XTRACT_SET_FREQUENCY;
-                break;
-            }
-
-            real = fft[n*2];
-            imag = fft[n*2+1];
+			/*
+			if(n==1 && withDC) // discard Nyquist
+			{
+				++n;
+			}
+			*/
+			// OOURA discards the always 0 imaginary of DC and Nyquists
+			if (n == M && !withDC)
+			{
+				real = fft[1];
+				imag = 0.0;
+			}
+			else if (n == 0 && withDC) {
+				real = fft[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft[n * 2];
+				imag = fft[n * 2 + 1];
+			}
 #else
-            real = fft->realp[n];
-            imag = fft->realp[n];
+			if (n == M && !withDC)
+			{
+				real = fft->imagp[0];
+				imag = 0.0;
+		}
+			else if (n == 0 && withDC) {
+				real = fft->realp[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft->realp[n];
+				imag = fft->imagp[n];
+			}
 #endif
 
             if ((temp = XTRACT_SQ(real) + XTRACT_SQ(imag)) >
@@ -228,38 +271,101 @@ int xtract_spectrum(const double *data, const int N, const void *argv, double *r
         }
         break;
 
+    case XTRACT_SPECTRUM_COEFFICIENTS:
+        for(n = 0, m = 0; m < M; ++n, ++m)
+        {
+            if(n==0 && !withDC) /* discard DC and keep Nyquist */
+            {
+                ++n;
+            }
+#ifdef USE_OOURA
+			/*
+			if(n==1 && withDC) // discard Nyquist
+			{
+				++n;
+			}
+			*/
+			// OOURA discards the always 0 imaginary of DC and Nyquists
+			if (n == M && !withDC)
+			{
+				real = fft[1];
+				imag = 0.0;
+			}
+			else if (n == 0 && withDC) {
+				real = fft[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft[n * 2];
+				imag = fft[n * 2 + 1];
+			}
+#else
+			if (n == M && !withDC)
+			{
+				real = fft->imagp[0];
+				imag = 0.0;
+		    }
+			else if (n == 0 && withDC) {
+				real = fft->realp[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft->realp[n];
+				imag = fft->imagp[n];
+			}
+#endif
+            result[m*2] = real;
+            result[m*2+1] = imag;
+            XTRACT_GET_MAX;
+            }
+        break;
+
     default:
         /* MAGNITUDE_SPECTRUM */
         for(n = 0, m = 0; m < M; ++n, ++m)
         {
-            marker = &result[m];
-
             if(n==0 && !withDC) /* discard DC and keep Nyquist */
             {
                 ++n;
-#ifdef USE_OOURA
-                marker = &result[M-1];
-#endif
             }
 #ifdef USE_OOURA
-            if(n==1 && withDC) /* discard Nyquist */
-            {
-                ++n;
-            }
-            if(n == M)
-            {
-                XTRACT_SET_FREQUENCY;
-                break;
-            }
-
-            real = fft[n*2];
-            imag = fft[n*2+1];
+			/*
+			if(n==1 && withDC) // discard Nyquist
+			{
+				++n;
+			}
+			*/
+			// OOURA discards the always 0 imaginary of DC and Nyquists
+			if (n == M && !withDC)
+			{
+				real = fft[1];
+				imag = 0.0;
+			}
+			else if (n == 0 && withDC) {
+				real = fft[0];
+				imag = 0.0;
+			}
+			else {
+				real = fft[n * 2];
+				imag = fft[n * 2 + 1];
+			}
 #else
-            real = fft->realp[n];
-            imag = fft->realp[n];
+            if (n == M && !withDC)
+            {
+                real = fft->imagp[0];
+                imag = 0.0;
+            }
+            else if (n == 0 && withDC) {
+                real = fft->realp[0];
+                imag = 0.0;
+            }
+            else {
+                real = fft->realp[n];
+                imag = fft->imagp[n];
+            }
 #endif
-            *marker = sqrt(XTRACT_SQ(real) + XTRACT_SQ(imag)) / (double)N;
-
+            result[m*2] = real;
+            result[m*2+1] = imag;
             XTRACT_SET_FREQUENCY;
             XTRACT_GET_MAX;
         }
@@ -279,24 +385,25 @@ int xtract_spectrum(const double *data, const int N, const void *argv, double *r
     return XTRACT_SUCCESS;
 }
 
-int xtract_autocorrelation_fft(const double *data, const int N, const void *argv, double *result)
+int xtract_autocorrelation_fft(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    double *rfft = NULL;
     int n        = 0;
-    int M        = 0;
-#ifndef USE_OOURA
-    DSPDoubleSplitComplex *fft = NULL;
-    double M_double = 0.0;
-#endif
-
-    M = N << 1;
-
-    /* Zero pad the input vector */
-    rfft = (double *)calloc(M, sizeof(double));
-    memcpy(rfft, data, N * sizeof(double));
+    int M        = N << 1;
 
 #ifdef USE_OOURA
+    real_t *rfft = NULL;
+#else
+    DSPDoubleSplitComplex *fft = NULL;
+    real_t M_double = 0.0;
+#endif
+
+
+#ifdef USE_OOURA
+    /* Zero pad the input vector */
+    rfft = (real_t *)calloc(M, sizeof(real_t));
+    memcpy(rfft, data, N * sizeof(real_t));
+    
     rdft(M, 1, rfft, ooura_data_autocorrelation_fft.ooura_ip, 
             ooura_data_autocorrelation_fft.ooura_w);
 
@@ -336,10 +443,10 @@ int xtract_autocorrelation_fft(const double *data, const int N, const void *argv
 
 #ifdef USE_OOURA
     for(n = 0; n < N; n++)
-        result[n] = rfft[n] / (double)M;
+        result[n] = rfft[n] / (real_t)M;
     free(rfft);
 #else
-    M_double = (double)M;
+    M_double = (real_t)M;
     vDSP_ztocD(fft, 1, (DOUBLE_COMPLEX *)result, 2, N);
     vDSP_vsdivD(result, 1, &M_double, result, 1, N);
 #endif
@@ -347,57 +454,194 @@ int xtract_autocorrelation_fft(const double *data, const int N, const void *argv
     return XTRACT_SUCCESS;
 }
 
-int xtract_mfcc(const double *data, const int N, const void *argv, double *result)
+int xtract_mfcc(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     xtract_mel_filter *f;
     int n, filter;
+    real_t* temp;
 
     f = (xtract_mel_filter *)argv;
-
+    temp = calloc(f->n_filters, sizeof(real_t));
     for(filter = 0; filter < f->n_filters; filter++)
     {
-        result[filter] = 0.0;
         for(n = 0; n < N; n++)
         {
-            result[filter] += data[n] * f->filters[filter][n];
+            if (f->filters[filter][n] != 0)
+                temp[filter] += data[n] * f->filters[filter][n];
         }
-        result[filter] = log(result[filter] < XTRACT_LOG_LIMIT ? XTRACT_LOG_LIMIT : result[filter]);
+        if (temp[filter] < XTRACT_LOG_LIMIT)
+            temp[filter] = XTRACT_LOG_LIMIT_DB;
+        else
+            temp[filter] = log(temp[filter]);
     }
 
-    xtract_dct(result, f->n_filters, NULL, result);
-
-    return XTRACT_SUCCESS;
-}
-
-int xtract_dct(const double *data, const int N, const void *argv, double *result)
-{
-
-    int n;
-    int m;
-    double *temp = (double*)calloc(N, sizeof(double));
-
-    for (n = 0; n < N; ++n)
-    {
-        for(m = 1; m <= N; ++m) {
-            temp[n] += data[m - 1] * cos(M_PI * (n / (double)N) * (m - 0.5));
-        }
-    }
-
-    memcpy(result, temp, N * sizeof(double));
+    xtract_dct(temp, f->n_filters, NULL, result);
     free(temp);
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_autocorrelation(const double *data, const int N, const void *argv, double *result)
+int xtract_mmbses(const real_t *data, const int N, const void *argv, real_t *result)
+{
+    xtract_mel_filter *f;
+    int n, filter;
+    real_t* real = (real_t*)malloc(sizeof(real_t)*N);
+	real_t* imag = (real_t*)malloc(sizeof(real_t)*N);
+
+    f = (xtract_mel_filter *)argv;
+
+    for (filter = 0; filter < f->n_filters; filter++)
+    {
+        int count = 0;
+        real_t realMean = 0, realVariance = 0;
+        real_t imagMean = 0, imagVariance = 0;
+        real_t covariance = 0;
+        real_t energy = 0;
+
+        result[filter] = 0.0;
+        for(n = 0; n < N; n++)
+        {
+          real_t tempReal = data[n*2]*f->filters[filter][n];
+          real_t tempImag = data[n*2+1]*f->filters[filter][n];
+
+            if (f->filters[filter][n] != 0)
+            {
+                real[count] = tempReal;
+                imag[count] = tempImag;
+                count++;
+            }
+            energy += sqrt(XTRACT_SQ(tempReal) + XTRACT_SQ(tempImag)) / (real_t)N;
+        }
+        if (count == 0)
+          continue;
+        if (count == 1)
+        {
+          energy = (real_t)2*M_PI*energy;
+
+          if (energy < XTRACT_LOG_LIMIT)
+              result[filter] = XTRACT_LOG_LIMIT_DB;
+          else
+              result[filter] = log(energy);
+
+          continue;
+        }
+        // Calculate the arithmetic means of real and imaginary parts
+        for(n = 0; n < count; n++)
+        {
+            realMean += real[n] / count;
+            imagMean += imag[n] / count;
+        }
+        // Calculate the variances of real and imaginary parts
+        for(n = 0; n < count; n++)
+        {
+            realVariance += XTRACT_SQ(real[n]-realMean) / count;
+            imagVariance += XTRACT_SQ(imag[n]-imagMean) / count;
+        }
+        // Calculate the covariance between real and imaginary parts
+        for(n = 0; n < count; n++)
+        {
+            covariance += (real[n]-realMean)*(imag[n]-imagMean);
+        }
+        covariance /= (count-1);
+        // Calculate the final Mel based Multi-Band Spectral Entropy Signature coefficients
+        real_t temp = realVariance*imagVariance-XTRACT_SQ(covariance);
+
+        if (temp < XTRACT_LOG_LIMIT)
+            temp = XTRACT_LOG_LIMIT_DB;
+        else
+            temp = log(temp);
+
+        energy = (real_t)2*M_PI*energy;
+        if (energy < XTRACT_LOG_LIMIT)
+            energy = XTRACT_LOG_LIMIT_DB;
+        else
+            energy = log(energy);
+
+        result[filter] = energy+temp / 2;
+    }
+    free(real);
+    free(imag);
+    return XTRACT_SUCCESS;
+}
+
+int xtract_spectral_subband_centroids(const real_t *data, const int N, const void *argv, real_t *result)
+{
+    xtract_mel_filter *f = (xtract_mel_filter *)argv;
+    int n, filter;
+    const real_t *freqs = data;
+    const real_t *amps = data+N;
+
+    for (filter = 0; filter < f->n_filters; filter++)
+    {
+        real_t FA = 0.0, A = 0.0;
+
+        for(n = 0; n < N; n++)
+        {
+            real_t Multiplier = amps[n]*f->filters[filter][n];
+
+            FA += freqs[n]*f->filters[filter][n]*Multiplier;
+            A += Multiplier;
+        }
+        if (FA == 0.0 || A == 0.0)
+            result[filter] = 0;
+        else
+            result[filter] = FA / A;
+    }
+    return XTRACT_SUCCESS;
+}
+
+int xtract_dct(const real_t *data, const int N, const void *argv, real_t *result)
+{
+    int n, m;
+    // Extra variable to hold a reference for the dct lookup table since
+    // accessing the thread local storage is expensive.
+    real_t** temp_dct_table;
+
+    // Free the dct table if the cached dimension is different from the new dimension
+    if (dct_cos_table != NULL && dct_cos_table_dim != N)
+    {
+        for (n = 0; n < N; ++n)
+        {
+          free(dct_cos_table[n]);
+        }
+        free(dct_cos_table);
+        dct_cos_table = NULL;
+    }
+    // Allocate the dct cache table
+    if (dct_cos_table == NULL)
+    {
+        dct_cos_table_dim = N;
+        dct_cos_table = calloc(N, sizeof(real_t*));
+        for (n = 0; n < N; ++n)
+        {
+            dct_cos_table[n] = calloc(N, sizeof(real_t));
+            for (m = 1; m <= N; ++m)
+            {
+                dct_cos_table[n][m-1] = cos(M_PI * (n / (real_t)N)*(m - 0.5));
+            }
+        }
+    }
+    // Calculate the dct transformation
+    temp_dct_table = dct_cos_table;
+    memset(result, 0, N * sizeof(real_t));
+    for (n = 0; n < N; ++n)
+    {
+        for (m = 0; m < N; ++m)
+            result[n] += data[m]*temp_dct_table[n][m];
+    }
+
+    return XTRACT_SUCCESS;
+}
+
+int xtract_autocorrelation(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     /* Naive time domain implementation  */
 
     int n = N, i;
 
-    double corr;
+    real_t corr;
 
     while(n--)
     {
@@ -412,12 +656,12 @@ int xtract_autocorrelation(const double *data, const int N, const void *argv, do
     return XTRACT_SUCCESS;
 }
 
-int xtract_amdf(const double *data, const int N, const void *argv, double *result)
+int xtract_amdf(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N, i;
 
-    double md, temp;
+    real_t md, temp;
 
     while(n--)
     {
@@ -428,18 +672,18 @@ int xtract_amdf(const double *data, const int N, const void *argv, double *resul
             temp = (temp < 0 ? -temp : temp);
             md += temp;
         }
-        result[n] = md / (double)N;
+        result[n] = md / (real_t)N;
     }
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_asdf(const double *data, const int N, const void *argv, double *result)
+int xtract_asdf(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = N, i;
 
-    double sd;
+    real_t sd;
 
     while(n--)
     {
@@ -449,13 +693,13 @@ int xtract_asdf(const double *data, const int N, const void *argv, double *resul
             /*sd = 1;*/
             sd += XTRACT_SQ(data[i] - data[i + n]);
         }
-        result[n] = sd / (double)N;
+        result[n] = sd / (real_t)N;
     }
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_bark_coefficients(const double *data, const int N, const void *argv, double *result)
+int xtract_bark_coefficients(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int *limits, band, n;
@@ -465,26 +709,25 @@ int xtract_bark_coefficients(const double *data, const int N, const void *argv, 
     for(band = 0; band < XTRACT_BARK_BANDS - 1; band++)
     {
         result[band] = 0.0;
-        for(n = limits[band]; n < limits[band + 1]; n++)
+        for(n = limits[band]; n < limits[band + 1] && n < N; n++)
             result[band] += data[n];
     }
 
     return XTRACT_SUCCESS;
 }
 
-int xtract_peak_spectrum(const double *data, const int N, const void *argv, double *result)
+int xtract_peak_spectrum(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
-    double threshold, max, y, y2, y3, p, q, *input = NULL;
-    size_t bytes;
+    real_t threshold, max, y, y2, y3, p, q;
     int n = N, rv = XTRACT_SUCCESS;
 
     threshold = max = y = y2 = y3 = p = q = 0.0;
 
     if(argv != NULL)
     {
-        q = ((double *)argv)[0];
-        threshold = ((double *)argv)[1];
+        q = ((real_t *)argv)[0];
+        threshold = ((real_t *)argv)[1];
     }
     else
         rv = XTRACT_BAD_ARGV;
@@ -497,18 +740,6 @@ int xtract_peak_spectrum(const double *data, const int N, const void *argv, doub
 
     XTRACT_CHECK_q;
 
-    input = (double *)calloc(N,  sizeof(double));
-
-    bytes = N * sizeof(double);
-
-    if(input != NULL)
-        input = (double*)memcpy(input, data, bytes);
-    else
-        return XTRACT_MALLOC_FAILED;
-
-    while(n--)
-        max = XTRACT_MAX(max, input[n]);
-
     threshold *= .01 * max;
 
     result[0] = 0;
@@ -516,13 +747,13 @@ int xtract_peak_spectrum(const double *data, const int N, const void *argv, doub
 
     for(n = 1; n < N; n++)
     {
-        if(input[n] >= threshold)
+        if(data[n] >= threshold)
         {
-            if(input[n] > input[n - 1] && n + 1 < N && input[n] > input[n + 1])
+            if(data[n] > data[n - 1] && n + 1 < N && data[n] > data[n + 1])
             {
-                result[N + n] = q * (n + 1 + (p = .5 * ((y = input[n-1]) -
-                                                    (y3 = input[n+1])) / (input[n - 1] - 2 *
-                                                            (y2 = input[n]) + input[n + 1])));
+                result[N + n] = q * (n + 1 + (p = .5 * ((y = data[n-1]) -
+                                                    (y3 = data[n+1])) / (data[n - 1] - 2 *
+                                                            (y2 = data[n]) + data[n + 1])));
                 result[n] = y2 - .25 * (y - y3) * p;
             }
             else
@@ -538,22 +769,21 @@ int xtract_peak_spectrum(const double *data, const int N, const void *argv, doub
         }
     }
 
-    free(input);
     return (rv ? rv : XTRACT_SUCCESS);
 }
 
-int xtract_harmonic_spectrum(const double *data, const int N, const void *argv, double *result)
+int xtract_harmonic_spectrum(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n = (N >> 1), M = n;
 
-    const double *freqs, *amps;
-    double f0, threshold, ratio, nearest, distance;
+    const real_t *freqs, *amps;
+    real_t f0, threshold, ratio, nearest, distance;
 
     amps = data;
     freqs = data + n;
-    f0 = *((double *)argv);
-    threshold = *((double *)argv+1);
+    f0 = *((real_t *)argv);
+    threshold = *((real_t *)argv+1);
 
     ratio = nearest = distance = 0.0;
 
@@ -578,14 +808,14 @@ int xtract_harmonic_spectrum(const double *data, const int N, const void *argv, 
     return XTRACT_SUCCESS;
 }
 
-int xtract_lpc(const double *data, const int N, const void *argv, double *result)
+int xtract_lpc(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int i, j, M, L;
-    double r = 0.0,
+    real_t r = 0.0,
           error = 0.0;
 
-    double *ref = NULL,
+    real_t *ref = NULL,
            *lpc = NULL ;
 
     error = data[0];
@@ -596,11 +826,11 @@ int xtract_lpc(const double *data, const int N, const void *argv, double *result
 
     if(error == 0.0)
     {
-        memset(result, 0, M * sizeof(double));
+        memset(result, 0, M * sizeof(real_t));
         return XTRACT_NO_RESULT;
     }
 
-    memset(result, 0, M * sizeof(double));
+    memset(result, 0, M * sizeof(real_t));
 
     for (i = 0; i < L; i++)
     {
@@ -615,7 +845,7 @@ int xtract_lpc(const double *data, const int N, const void *argv, double *result
         lpc[i] = r;
         for (j = 0; j < i / 2; j++)
         {
-            double tmp      = lpc[j];
+            real_t tmp      = lpc[j];
             lpc[j]          = r * lpc[i - 1 - j];
             lpc[i - 1 - j] += r * tmp;
         }
@@ -627,14 +857,14 @@ int xtract_lpc(const double *data, const int N, const void *argv, double *result
     return XTRACT_SUCCESS;
 }
 
-int xtract_lpcc(const double *data, const int N, const void *argv, double *result)
+int xtract_lpcc(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     /* Given N lpc coefficients extract an LPC cepstrum of size argv[0] */
     /* Based on an an algorithm by rabiner and Juang */
 
     int n, k;
-    double sum;
+    real_t sum;
     int order = N - 1; /* Eventually change this to Q = 3/2 p as suggested in Rabiner */
     int cep_length;
 
@@ -642,9 +872,9 @@ int xtract_lpcc(const double *data, const int N, const void *argv, double *resul
         cep_length = N - 1; /* FIX: if we're going to have default values, they should come from the descriptor */
     else
         cep_length = *(int *)argv;
-    //cep_length = (int)((double *)argv)[0];
+    //cep_length = (int)((real_t *)argv)[0];
 
-    memset(result, 0, cep_length * sizeof(double));
+    memset(result, 0, cep_length * sizeof(real_t));
 
     for (n = 1; n <= order && n <= cep_length; n++)
     {
@@ -666,11 +896,11 @@ int xtract_lpcc(const double *data, const int N, const void *argv, double *resul
     return XTRACT_SUCCESS;
 
 }
-//int xtract_lpcc_s(const double *data, const int N, const void *argv, double *result){
+//int xtract_lpcc_s(const real_t *data, const int N, const void *argv, real_t *result){
 //    return XTRACT_SUCCESS;
 //}
 
-int xtract_subbands(const double *data, const int N, const void *argv, double *result)
+int xtract_subbands(const real_t *data, const int N, const void *argv, real_t *result)
 {
 
     int n, bw, xtract_func, nbands, scale, start, lower, *argi, rv;

@@ -11,29 +11,29 @@
 
 #define XTTEST_2PI 6.28318530717958647693
 
-void xttest_gen_sine(double *table, uint32_t tablesize, double samplerate, double frequency, double amplitude)
+void xttest_gen_sine(real_t *table, uint32_t tablesize, real_t samplerate, real_t frequency, real_t amplitude)
 {
     int samples_per_period = samplerate / frequency;
 
     for (uint32_t i = 0; i < tablesize; ++i)
     {
         int phase = i % samples_per_period;
-        table[i] = sin((phase / (double)samples_per_period) * XTTEST_2PI) * amplitude;
+        table[i] = sin((phase / (real_t)samples_per_period) * XTTEST_2PI) * amplitude;
     }
 }
 
-void xttest_gen_sawtooth(double *table, uint32_t tablesize, double samplerate, double frequency, double amplitude)
+void xttest_gen_sawtooth(real_t *table, uint32_t tablesize, real_t samplerate, real_t frequency, real_t amplitude)
 {
     int samples_per_period = samplerate / frequency;
 
     for (uint32_t i = 0; i < tablesize; ++i)
     {
         int phase = i % samples_per_period;
-        table[i] = ((phase / (double)samples_per_period) * 2.0 - 1.0) * amplitude;
+        table[i] = ((phase / (real_t)samples_per_period) * 2.0 - 1.0) * amplitude;
     }
 }
 
-void xttest_gen_noise(double *table, uint32_t tablesize, double amplitude)
+void xttest_gen_noise(real_t *table, uint32_t tablesize, real_t amplitude)
 {
     for (uint32_t i = 0; i < tablesize; ++i)
     {
@@ -41,12 +41,12 @@ void xttest_gen_noise(double *table, uint32_t tablesize, double amplitude)
     }
 }
 
-uint16_t xttest_ftom(double frequency)
+uint16_t xttest_ftom(real_t frequency)
 {
     return (int)roundf(6900.0 + 1200.0 * log2(frequency / 440.0));
 }
 
-void xttest_add(double *table1, double *table2, uint32_t tablesize)
+void xttest_add(real_t *table1, real_t *table2, uint32_t tablesize)
 {
     for (uint32_t i = 0; i < tablesize; ++i)
     {
@@ -54,7 +54,7 @@ void xttest_add(double *table1, double *table2, uint32_t tablesize)
     }
 }
 
-void xttest_mul(double *table, uint32_t tablesize, double constant)
+void xttest_mul(real_t *table, uint32_t tablesize, real_t constant)
 {
     for (uint32_t i = 0; i < tablesize; ++i)
     {

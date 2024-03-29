@@ -25,6 +25,7 @@
 #define FFT_H
 
 #ifdef _MSC_VER
+	#define USE_OOURA
 	#ifndef __cplusplus
 		typedef int bool;
 		#define false 0
@@ -47,7 +48,7 @@
 typedef struct xtract_ooura_data_
 {
     int *ooura_ip;
-    double *ooura_w;
+    real_t *ooura_w;
     bool initialised;
 } xtract_ooura_data;
 #else

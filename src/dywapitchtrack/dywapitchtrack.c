@@ -102,17 +102,17 @@ typedef struct _minmax {
 	struct _minmax *next;
 } minmax;
 
-double _dywapitch_computeWaveletPitch(const double * samples, int startsample, int samplecount) {
-	double pitchF = 0.0;
+real_t _dywapitch_computeWaveletPitch(const real_t * samples, int startsample, int samplecount) {
+	real_t pitchF = 0.0;
 	
 	int i, j;
-	double si, si1;
+	real_t si, si1;
 	
 	// must be a power of 2
 	samplecount = _floor_power2(samplecount);
 	
-	double *sam = (double *)malloc(sizeof(double)*samplecount);
-	memcpy(sam, samples + startsample, sizeof(double)*samplecount);
+	real_t *sam = (real_t *)malloc(sizeof(real_t)*samplecount);
+	memcpy(sam, samples + startsample, sizeof(real_t)*samplecount);
 	int curSamNb = samplecount;
 	
 	int *distances = (int *)malloc(sizeof(int)*samplecount);
@@ -122,17 +122,17 @@ double _dywapitch_computeWaveletPitch(const double * samples, int startsample, i
 	
 	// algorithm parameters
 	int maxFLWTlevels = 6;
-	double maxF = 3000.;
+	real_t maxF = 3000.;
 	int differenceLevelsN = 3;
-	double maximaThresholdRatio = 0.75;
+	real_t maximaThresholdRatio = 0.75;
 	
-	double ampltitudeThreshold;  
-	double theDC = 0.0;
+	real_t ampltitudeThreshold;  
+	real_t theDC = 0.0;
 	
 	{ // compute ampltitudeThreshold and theDC
 		//first compute the DC and maxAMplitude
-		double maxValue = 0.0;
-		double minValue = 0.0;
+		real_t maxValue = 0.0;
+		real_t minValue = 0.0;
 		for (i = 0; i < samplecount;i++) {
 			si = sam[i];
 			theDC = theDC + si;
@@ -142,7 +142,7 @@ double _dywapitch_computeWaveletPitch(const double * samples, int startsample, i
 		theDC = theDC/samplecount;
 		maxValue = maxValue - theDC;
 		minValue = minValue - theDC;
-		double amplitudeMax = (maxValue > -minValue ? maxValue : -minValue);
+		real_t amplitudeMax = (maxValue > -minValue ? maxValue : -minValue);
 		
 		ampltitudeThreshold = amplitudeMax*maximaThresholdRatio;
 		//asLog("dywapitch theDC=%f ampltitudeThreshold=%f\n", theDC, ampltitudeThreshold);
@@ -151,7 +151,7 @@ double _dywapitch_computeWaveletPitch(const double * samples, int startsample, i
 	
 	// levels, start without downsampling..
 	int curLevel = 0;
-	double curModeDistance = -1.;
+	real_t curModeDistance = -1.;
 	int delta;
 	
 	while(1) {
@@ -165,7 +165,7 @@ double _dywapitch_computeWaveletPitch(const double * samples, int startsample, i
 		// compute the first maximums and minumums after zero-crossing
 		// store if greater than the min threshold
 		// and if at a greater distance than delta
-		double dv, previousDV = -1000;
+		real_t dv, previousDV = -1000;
 		nbMins = nbMaxs = 0;   
 		int lastMinIndex = -1000000;
 		int lastmaxIndex = -1000000;
@@ -277,14 +277,14 @@ double _dywapitch_computeWaveletPitch(const double * samples, int startsample, i
 		//asLog("dywapitch bestDistance=%ld\n", bestDistance);
 		
 		// averaging
-		double distAvg = 0.0;
-		double nbDists = 0;
+		real_t distAvg = 0.0;
+		real_t nbDists = 0;
 		for (j = -delta ; j <= delta ; j++) {
 			if (bestDistance+j >=0 && bestDistance+j < samplecount) {
 				int nbDist = distances[bestDistance+j];
 				if (nbDist > 0) {
 					nbDists += nbDist;
-					distAvg += (bestDistance+j)*nbDist;
+					distAvg += (real_t)(bestDistance+j)*nbDist;
 				}
 			}
 		}
@@ -294,7 +294,7 @@ double _dywapitch_computeWaveletPitch(const double * samples, int startsample, i
 		
 		// continue the levels ?
 		if (curModeDistance > -1.) {
-			double similarity = fabs(distAvg*2 - curModeDistance);
+			real_t similarity = fabs(distAvg*2 - curModeDistance);
 			if (similarity <= 2*delta) {
 				//if DEBUGG then put "similarity="&similarity&&"delta="&delta&&"ok"
  				//asLog("dywapitch similarity=%f OK !\n", similarity);
@@ -344,20 +344,20 @@ cleanup:
 It states: 
  - a pitch cannot change much all of a sudden (20%) (impossible humanly,
  so if such a situation happens, consider that it is a mistake and drop it. 
- - a pitch cannot double or be divided by 2 all of a sudden : it is an
- algorithm side-effect : divide it or double it by 2. 
+ - a pitch cannot real_t or be divided by 2 all of a sudden : it is an
+ algorithm side-effect : divide it or real_t it by 2. 
  - a lonely voiced pitch cannot happen, nor can a sudden drop in the middle
  of a voiced segment. Smooth the plot. 
 ***/
 
-double _dywapitch_dynamicprocess(dywapitchtracker *pitchtracker, double pitch) {
+real_t _dywapitch_dynamicprocess(dywapitchtracker *pitchtracker, real_t pitch) {
 	
 	// equivalence
 	if (pitch == 0.0) pitch = -1.0;
 	
 	//
-	double estimatedPitch = -1;
-	double acceptedError = 0.2f;
+	real_t estimatedPitch = -1;
+	real_t acceptedError = 0.2f;
 	int maxConfidence = 5;
 	
 	if (pitch != -1) {
@@ -369,18 +369,18 @@ double _dywapitch_dynamicprocess(dywapitchtracker *pitchtracker, double pitch) {
 			pitchtracker->_prevPitch = pitch;
 			pitchtracker->_pitchConfidence = 1;
 			
-		} else if (abs(pitchtracker->_prevPitch - pitch)/pitch < acceptedError) {
+		} else if (fabs(pitchtracker->_prevPitch - pitch)/pitch < acceptedError) {
 			// similar : remember and increment pitch
 			pitchtracker->_prevPitch = pitch;
 			estimatedPitch = pitch;
 			pitchtracker->_pitchConfidence = min(maxConfidence, pitchtracker->_pitchConfidence + 1); // maximum 3
 			
-		} else if ((pitchtracker->_pitchConfidence >= maxConfidence-2) && abs(pitchtracker->_prevPitch - 2.*pitch)/(2.*pitch) < acceptedError) {
+		} else if ((pitchtracker->_pitchConfidence >= maxConfidence-2) && fabs(pitchtracker->_prevPitch - 2.*pitch)/(2.*pitch) < acceptedError) {
 			// close to half the last pitch, which is trusted
 			estimatedPitch = 2.*pitch;
 			pitchtracker->_prevPitch = estimatedPitch;
 			
-		} else if ((pitchtracker->_pitchConfidence >= maxConfidence-2) && abs(pitchtracker->_prevPitch - 0.5*pitch)/(0.5*pitch) < acceptedError) {
+		} else if ((pitchtracker->_pitchConfidence >= maxConfidence-2) && fabs(pitchtracker->_prevPitch - 0.5*pitch)/(0.5*pitch) < acceptedError) {
 			// close to twice the last pitch, which is trusted
 			estimatedPitch = 0.5*pitch;
 			pitchtracker->_prevPitch = estimatedPitch;
@@ -439,8 +439,8 @@ void dywapitch_inittracking(dywapitchtracker *pitchtracker) {
 	pitchtracker->_pitchConfidence = -1;
 }
 
-double dywapitch_computepitch(dywapitchtracker *pitchtracker, const double * samples, int startsample, int samplecount) {
-	double raw_pitch = _dywapitch_computeWaveletPitch(samples, startsample, samplecount);
+real_t dywapitch_computepitch(dywapitchtracker *pitchtracker, const real_t * samples, int startsample, int samplecount) {
+	real_t raw_pitch = _dywapitch_computeWaveletPitch(samples, startsample, samplecount);
 	return _dywapitch_dynamicprocess(pitchtracker, raw_pitch);
 }
 

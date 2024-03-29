@@ -19,7 +19,7 @@
 /* Helper functions */
 %inline %{
 
-    void *doublea_to_voidp(double f[])
+    void *doublea_to_voidp(real_t f[])
     {
         return (void *)f;
     }
@@ -33,7 +33,7 @@
     /* Return a pointer to memory allocated for a mel filterbank */
     xtract_mel_filter *create_filterbank(int n_filters, int blocksize){
         
-        double **filters;
+        real_t **filters;
         xtract_mel_filter *mf;
         int n, N;
 
@@ -42,10 +42,10 @@
         mf = malloc(sizeof(xtract_mel_filter));
         mf->n_filters = n_filters;
 
-        filters = (double **)malloc(n_filters * sizeof(double *));
+        filters = (real_t **)malloc(n_filters * sizeof(real_t *));
 
         for(n = 0; n < n_filters; n++)
-            filters[n] = (double *)malloc(N * sizeof(double));
+            filters[n] = (real_t *)malloc(N * sizeof(real_t));
 
         mf->filters = filters;
         
@@ -57,7 +57,7 @@
     void destroy_filterbank(xtract_mel_filter *filterbank){
         
         int i = filterbank->n_filters;
-        double **filters;
+        real_t **filters;
 
         filters = filterbank->filters;
             
@@ -73,10 +73,10 @@
 %}
 
 #ifndef SWIGJAVA
-%array_class(double, doubleArray); 
+%array_class(real_t, doubleArray); 
 %array_class(int, intArray); 
 #endif
-%apply double *OUTPUT { double *result };
+%apply real_t *OUTPUT { real_t *result };
 
 
 %ignore xtract;
@@ -92,16 +92,16 @@
 /* We have to put xtract_delta declarations inline because it contains a mixture of vector and scalar functions */
 %inline %{
 
-    int xtract_flux(const double *data, const int N, const void *argv , double *result);
-    int xtract_lnorm(const double *data, const int N, const void *argv , double *result);
+    int xtract_flux(const real_t *data, const int N, const void *argv , real_t *result);
+    int xtract_lnorm(const real_t *data, const int N, const void *argv , real_t *result);
 
 %}
 
-%clear double *result;
+%clear real_t *result;
 
 %inline %{
 
-    int xtract_difference_vector(const double *data, const int N, const void *argv, double *result);
+    int xtract_difference_vector(const real_t *data, const int N, const void *argv, real_t *result);
 
 %}
 

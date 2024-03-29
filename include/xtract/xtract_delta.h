@@ -45,25 +45,25 @@ extern "C" {
  *  \note FIX: don't be lazy -- take the lnorm of the difference vector! 
  * An alias for xtract_lnorm()
  */
-int xtract_flux(const double *data, const int N, const void *argv , double *result);
+int xtract_flux(const real_t *data, const int N, const void *argv , real_t *result);
 
 /** \brief Extract the L-norm of a vector
  *
  * \param *data: a pointer to the first element in an array of doubles representing the difference between two subsequent frames of output from a vector-based feature e.g. the *result from xtract_difference_vector()
  * \param N: the length of the array pointed to by *data
  * \param *argv: a pointer to an array of doubles, the first representing the "norm order". The second argument represents the filter type determining what values we consider from the difference vector as given in the enumeration xtract_lnorm_filter_types_ (libxtract.h), the third sets whether we want the result to be normalised in the range 0-1 (0 = no normalise, 1 = normalise)
- * \param *result: a pointer to a double representing the flux
+ * \param *result: a pointer to a real_t representing the flux
  *
  */
-int xtract_lnorm(const double *data, const int N, const void *argv , double *result);
+int xtract_lnorm(const real_t *data, const int N, const void *argv , real_t *result);
 /*xtract_frame_tracker *xf */
 
 /** \brief Extract attack Time */
-int xtract_attack_time(const double *data, const int N, const void *argv , double *result);
+int xtract_attack_time(const real_t *data, const int N, const void *argv , real_t *result);
 /* xtract_amp_tracker *xa */
 
 /** Extract temporal decrease */
-int xtract_decay_time(const double *data, const int N, const void *argv, double *result);
+int xtract_decay_time(const real_t *data, const int N, const void *argv, real_t *result);
 /* xtract_amp_tracker *xa */
 
 
@@ -75,9 +75,9 @@ int xtract_decay_time(const double *data, const int N, const void *argv, double 
  * \param *result a pointer to an array of size N / 2 representing the difference between the two input vectors. 
  *
  * */
-int xtract_difference_vector(const double *data, const int N, const void *argv, double *result);
+int xtract_difference_vector(const real_t *data, const int N, const void *argv, real_t *result);
 /*xtract_frame_tracker *xf */
-/*double frames*/
+/*real_t frames*/
 
 /** @} */
 

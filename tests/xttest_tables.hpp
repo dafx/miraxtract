@@ -2,7 +2,7 @@
 
 // We need a pre-computed uniform distribution because tests need to be reproducible
 // If we use "real" randomness then in certain cases tests will pass or fail depending on the RNG output for that specifc run
-const double xttest_noise1024[1024] =
+const real_t xttest_noise1024[1024] =
 {
     -0.926215445821,-0.098017781796,0.109966880378,0.820549466690,-0.546435658457,-0.504663461036,0.793264509872,-0.634431900219,
     -0.152810838178,-0.503402913010,0.915663440593,-0.973438530483,0.158277372886,-0.041142932741,-0.327499969152,-0.256058057458,

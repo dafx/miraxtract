@@ -31,12 +31,12 @@
 
 #include "xtract_window_private.h"
 
-void gauss(double *window, const int N, const double sd)
+void gauss(real_t *window, const int N, const real_t sd)
 {
 
     int n;
-    const double M = N - 1;
-    double num,
+    const real_t M = N - 1;
+    real_t num,
           den,
           exponent;
 
@@ -53,86 +53,86 @@ void gauss(double *window, const int N, const double sd)
     }
 }
 
-void hamming(double *window, const int N)
+void hamming(real_t *window, const int N)
 {
 
     int n;
-    const double M = N - 1;
+    const real_t M = N - 1;
 
     for (n = 0; n < N; n++)
-        window[n] = 0.53836 - (0.46164 * cos(2.0 * M_PI * (double)n / M));
+        window[n] = 0.53836 - (0.46164 * cos(2.0 * M_PI * (real_t)n / M));
 
 }
 
-void hann(double *window, const int N)
+void hann(real_t *window, const int N)
 {
 
     int n;
-    const double M = N - 1;
+    const real_t M = N - 1;
 
     for (n = 0; n < N; n++)
-        window[n] = 0.5 * (1.0 - cos(2.0 * M_PI * (double)n / M));
+        window[n] = 0.5 * (1.0 - cos(2.0 * M_PI * (real_t)n / M));
 
 }
 
-void bartlett(double *window, const int N)
+void bartlett(real_t *window, const int N)
 {
 
     int n;
-    const double M = N - 1;
+    const real_t M = N - 1;
 
     for (n = 0; n < N; n++)
         window[n] = 2.0 / M * (M / 2.0 - fabs(n - M / 2.0));
 
 }
 
-void triangular(double *window, const int N)
+void triangular(real_t *window, const int N)
 {
 
     int n;
-    const double M = N - 1;
+    const real_t M = N - 1;
 
     for (n = 0; n < N; n++)
         window[n] = 2.0 / N * (N / 2.0 - fabs(n - M / 2.0));
 }
 
-void bartlett_hann(double *window, const int N)
+void bartlett_hann(real_t *window, const int N)
 {
 
     int n;
-    const double M = N - 1,
+    const real_t M = N - 1,
                 a0 = 0.62,
                 a1 = 0.5,
                 a2 = 0.38;
-    double term1 = 0.0,
+    real_t term1 = 0.0,
           term2 = 0.0;
 
     for (n = 0; n < N; n++)
     {
 
         term1 = a1 * fabs(n / M - 0.5);
-        term2 = a2 * cos(2.0 * M_PI * (double)n / M);
+        term2 = a2 * cos(2.0 * M_PI * (real_t)n / M);
 
         window[n] = a0 - term1 - term2;
     }
 }
 
-void blackman(double *window, const int N)
+void blackman(real_t *window, const int N)
 {
 
     int n;
-    const double M = N - 1,
+    const real_t M = N - 1,
                 a0 = 0.42,
                 a1 = 0.5,
                 a2 = 0.08;
-    double term1 = 0.0,
+    real_t term1 = 0.0,
           term2 = 0.0;
 
     for (n = 0; n < N; n++)
     {
 
-        term1 = a1 * cos(2.0 * M_PI * (double)n / M);
-        term2 = a2 * cos(4.0 * M_PI * (double)n / M);
+        term1 = a1 * cos(2.0 * M_PI * (real_t)n / M);
+        term2 = a2 * cos(4.0 * M_PI * (real_t)n / M);
 
         window[n] = a0 - term1 + term2;
     }
@@ -141,19 +141,19 @@ void blackman(double *window, const int N)
 #define BIZ_EPSILON 1E-21 // Max error acceptable 
 
 /* Based on code from mplayer window.c, and somewhat beyond me */
-double besselI0(double x)
+real_t besselI0(real_t x)
 {
 
-    double temp;
-    double sum   = 1.0;
-    double u     = 1.0;
-    double halfx = x/2.0;
+    real_t temp;
+    real_t sum   = 1.0;
+    real_t u     = 1.0;
+    real_t halfx = x/2.0;
     int      n     = 1;
 
     do
     {
 
-        temp = halfx/(double)n;
+        temp = halfx/(real_t)n;
         u *=temp * temp;
         sum += u;
         n++;
@@ -165,12 +165,12 @@ double besselI0(double x)
 
 }
 
-void kaiser(double *window, const int N, const double alpha)
+void kaiser(real_t *window, const int N, const real_t alpha)
 {
 
     int n;
-    const double M = N - 1;
-    double num;
+    const real_t M = N - 1;
+    real_t num;
 
     for (n = 0; n < N; n++)
     {
@@ -181,16 +181,16 @@ void kaiser(double *window, const int N, const double alpha)
     }
 }
 
-void blackman_harris(double *window, const int N)
+void blackman_harris(real_t *window, const int N)
 {
 
     int n;
-    const double M = N - 1,
+    const real_t M = N - 1,
                 a0 = 0.35875,
                 a1 = 0.48829,
                 a2 = 0.14128,
                 a3 = 0.01168;
-    double term1 = 0.0,
+    real_t term1 = 0.0,
           term2 = 0.0,
           term3 = 0.0;
 

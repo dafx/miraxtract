@@ -61,7 +61,7 @@ extern "C" {
  * It is up to the caller to generate and free the array containing the window, and to allocate and free memory of size N to hold the data pointed to by *result
  *
  */
-int xtract_windowed(const double *data, const int N, const void *argv, double *result);
+int xtract_windowed(const real_t *data, const int N, const void *argv, real_t *result);
 
 /** \brief Divides the array pointed to by *data into two subframes, and applies a given feature to each subframe, returning them in a single array pointed to by result
  *
@@ -75,10 +75,10 @@ int xtract_windowed(const double *data, const int N, const void *argv, double *r
  * It is important to ensure that any _init_*() functions that are called in preparation for functions that are called on subframes are given the subframe size as 'N', and not the frame size. i.e. if xtract_features_from_subframes() is called with N=64, and feature=XTRACT_SPECTRUM, then xtract_init_fft() should be called with N=32.
  *
  */
-int xtract_features_from_subframes(const double *data, const int N, const int feature, const void *argv, double *result);
+int xtract_features_from_subframes(const real_t *data, const int N, const int feature, const void *argv, real_t *result);
 
 /** \brief Test whether a number is denormal */
-int xtract_is_denormal(double const d);
+int xtract_is_denormal(real_t const d);
 
 /** \brief Test whether a number is a power of two */
 bool xtract_is_poweroftwo(unsigned int x);
@@ -88,13 +88,13 @@ bool xtract_is_poweroftwo(unsigned int x);
  *
  * \param *data a pointer to an array of doubles
  * \param N the number of elements in the array pointed to by *data to be smoothed
- * \param *argv a pointer to a double giving the smoothing gain
+ * \param *argv a pointer to a real_t giving the smoothing gain
  * \param *result a pointer to the first element an array containing the smoothed data
  *
  * \note if passing in a spectrum e.g. *result from xtract_spectrum(), then N for xtract_smoothed() should be N / 2 with respect to the N for xtract_spectrum() so only amplitude components are smoothed, not frequencies!
  *
  */
-    int xtract_smoothed(const double *data, const int N, const void *argv, double *result);
+    int xtract_smoothed(const real_t *data, const int N, const void *argv, real_t *result);
     
     
 /** @} */

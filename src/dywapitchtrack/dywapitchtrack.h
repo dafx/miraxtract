@@ -70,12 +70,14 @@
  dywapitch_inittracking(&pitchtracker);
  
  // For each available audio buffer, call 'dywapitch_computepitch'
- double thepitch = dywapitch_computepitch(&pitchtracker, samples, start, count);
+ real_t thepitch = dywapitch_computepitch(&pitchtracker, samples, start, count);
  
 */
 
 #ifndef dywapitchtrack__H
 #define dywapitchtrack__H
+
+#include <xtract/xtract_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -83,7 +85,7 @@ extern "C" {
 
 // structure to hold tracking data
 typedef struct _dywapitchtracker {
-	double	_prevPitch;
+	real_t	_prevPitch;
 	int		_pitchConfidence;
 } dywapitchtracker;
 
@@ -100,7 +102,7 @@ void dywapitch_inittracking(dywapitchtracker *pitchtracker);
 // startsample : the index of teh first sample to use in teh sample buffer
 // samplecount : the number of samples to use to compte the pitch
 // return 0.0 if no pitch was found (sound too low, noise, etc..)
-double dywapitch_computepitch(dywapitchtracker *pitchtracker, const double * samples, int startsample, int samplecount);
+real_t dywapitch_computepitch(dywapitchtracker *pitchtracker, const real_t * samples, int startsample, int samplecount);
 
 #ifdef __cplusplus
 } // extern "C"

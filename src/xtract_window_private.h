@@ -21,7 +21,9 @@
  *
  */
 
-/* xtract_window_private.h: declares window generation functions */
+ /* xtract_window_private.h: declares window generation functions */
+
+#include <xtract/xtract_types.h>
 
 #define PI 3.1415926535897931
 
@@ -32,7 +34,7 @@
  * \param sd the standard deviation of the "distribution" represented by the Gaussian curve. The higher the value of sd, the wider the curve. Generally sd <= 0.5
  *
  */
-void gauss(double *window, const int N, const double sd);
+void gauss(real_t *window, const int N, const real_t sd);
 
 /** \brief generate a Hamming window
  *
@@ -40,7 +42,7 @@ void gauss(double *window, const int N, const double sd);
  * \param N the number of elements in the array pointed to by *window
  *
  */
-void hamming(double *window, const int N);
+void hamming(real_t *window, const int N);
 
 /** \brief generate a Hann window
  *
@@ -48,7 +50,7 @@ void hamming(double *window, const int N);
  * \param N the number of elements in the array pointed to by *window
  *
  */
-void hann(double *window, const int N);
+void hann(real_t *window, const int N);
 
 /** \brief generate a Bartlett window
  *
@@ -56,7 +58,7 @@ void hann(double *window, const int N);
  * \param N the number of elements in the array pointed to by *window
  *
  */
-void bartlett(double *window, const int N);
+void bartlett(real_t *window, const int N);
 
 /** \brief generate a Triangular window
  *
@@ -64,7 +66,7 @@ void bartlett(double *window, const int N);
  * \param N the number of elements in the array pointed to by *window
  *
  */
-void triangular(double *window, const int N);
+void triangular(real_t *window, const int N);
 
 /** \brief generate a Bartlett-Hann  window
  *
@@ -72,7 +74,7 @@ void triangular(double *window, const int N);
  * \param N the number of elements in the array pointed to by *window
  *
  */
-void bartlett_hann(double *window, const int N);
+void bartlett_hann(real_t *window, const int N);
 
 /** \brief generate a Blackman window
  *
@@ -80,7 +82,7 @@ void bartlett_hann(double *window, const int N);
  * \param N the number of elements in the array pointed to by *window
  *
  */
-void blackman(double *window, const int N);
+void blackman(real_t *window, const int N);
 
 /** \brief generate a Kaiser window
  *
@@ -89,7 +91,7 @@ void blackman(double *window, const int N);
  * \param alpha The larger the value of |alpha|, the narrower the window becomes
  *
  */
-void kaiser(double *window, const int N, const double alpha);
+void kaiser(real_t *window, const int N, const real_t alpha);
 
 /** \brief generate a Blackman-Harris window
  *
@@ -97,5 +99,5 @@ void kaiser(double *window, const int N, const double alpha);
  * \param N the number of elements in the array pointed to by *window
  *
  */
-void blackman_harris(double *window, const int N);
+void blackman_harris(real_t *window, const int N);
 
