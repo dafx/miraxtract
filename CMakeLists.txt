@@ -32,7 +32,7 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
 endif ()
 
 # Create CMake targets for Python components needed by nanobind
-find_package(Python 3 COMPONENTS Interpreter Development REQUIRED)
+find_package(Python 3.8 COMPONENTS Interpreter Development REQUIRED)
 
 # Determine the nanobind CMake include path and register it
 execute_process(

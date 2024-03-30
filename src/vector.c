@@ -374,7 +374,8 @@ int xtract_spectrum(const real_t *data, const int N, const void *argv, real_t *r
 
     if(normalise)
     {
-        for(n = 0; n < M; n++)
+        max += __FLT_EPSILON__;
+        for (n = 0; n < M; n++)
             result[n] /= max;
     }
 
