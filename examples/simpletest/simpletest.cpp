@@ -27,6 +27,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdbool.h>
+#include <vector>
 
 #include "xtract/libxtract.h"
 #include "xtract/xtract_stateful.h"
@@ -140,7 +141,7 @@ int main(void)
     float *wavData = (float *)wavFile.GetData(); // assume 32-bit float
     std::size_t wavBytes = wavFile.GetDataSize();
     uint64_t wavSamples = wavBytes / sizeof(float);
-    real_t data[wavSamples];
+    std::vector<real_t> data(wavSamples);
     
     for (n = 0; n < wavSamples; ++n)
     {
@@ -176,7 +177,7 @@ int main(void)
     for (uint64_t n = 0; (n + BLOCKSIZE) < wavSamples; n += HALF_BLOCKSIZE) // Overlap by HALF_BLOCKSIZE
     {
         /* get the F0 */
-        xtract[XTRACT_WAVELET_F0](&data[n], BLOCKSIZE, &samplerate, &f0);
+        xtract[XTRACT_WAVELET_F0](data.data() + n, BLOCKSIZE, &samplerate, &f0);
         
         /* get the F0 as a MIDI note */
         if (f0 != 0.0)
@@ -190,7 +191,7 @@ int main(void)
             prev_note = note;
         }
         
-        xtract_windowed(&data[n], BLOCKSIZE, window, windowed);
+        xtract_windowed(data.data() + n, BLOCKSIZE, window, windowed);
 
         /* get the spectrum */
         argd[0] = SAMPLERATE / (real_t)BLOCKSIZE;
