@@ -3,7 +3,6 @@
  * All rights reserved.
  */
 
-#pragma once
 
 #include "filter.hpp"
 

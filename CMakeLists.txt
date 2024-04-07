@@ -24,6 +24,11 @@ target_link_libraries(miraxtract_tests xtract)
 add_executable(miraxtract_example examples/simpletest/simpletest.cpp examples/simpletest/WaveFile.cpp)
 target_link_libraries(miraxtract_example xtract)
 
+file( GLOB_RECURSE LI_SOURCE "li/*.cpp" )
+add_executable(li_test ${LI_SOURCE} examples/simpletest/WaveFile.cpp)
+target_include_directories(li_test PRIVATE include)
+target_link_libraries(li_test xtract)
+
 # nanobind
 
 if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)

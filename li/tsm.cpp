@@ -3,8 +3,6 @@
  * All rights reserved.
  */
 
-#pragma once
-
 #include "looper.hpp"
 
 using namespace li;

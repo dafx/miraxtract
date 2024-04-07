@@ -387,7 +387,7 @@ extern "C" {
      *
      * A pointer to an array of BARK_BANDS ints most be passed in, and is populated with BARK_BANDS fft bin numbers representing the limits of each band
      *
-     * \param N: the audio block size
+     * \param N: the audio block size FIXME shouldn't this be the fft size?
      * \param sr: The sample audio sample rate
      * \param *band_limits: a pointer to an array of BARK_BANDS ints
      */

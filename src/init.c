@@ -240,8 +240,13 @@ int xtract_init_bark(int N, real_t sr, int *band_limits)
 
     int bands = XTRACT_BARK_BANDS;
 
-    while(bands--)
+    while(bands--) {
         band_limits[bands] = edges[bands] / sr * N;
+        if (band_limits[bands] > N / 2)
+        {
+            band_limits[bands] = N / 2;
+        }
+    }
     /*FIX shohuld use rounding, but couldn't get it to work */
 
     return XTRACT_SUCCESS;
