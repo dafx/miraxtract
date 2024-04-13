@@ -24,6 +24,12 @@
 
 namespace li
 {
+    struct range
+    {
+        float lo, hi;
+        bool check(float v) const { return v >= lo && v <= hi; }
+    };
+
     typedef std::vector<float> fvec;
     typedef std::vector<int> ivec;
 

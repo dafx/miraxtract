@@ -1,6 +1,6 @@
 #include "../examples/simpletest/WaveFile.h"
 
-#include "beat.hpp"
+#include "../src/beat.hpp"
 
 int main()
 {

@@ -47,6 +47,8 @@ namespace li
 
     private:
 
+        const range bpm_range = {70.0f, 160.0f};
+        
         float update_prd();
         int predict_next_beat();
         void update_score(float flux);
@@ -62,5 +64,6 @@ namespace li
         float fs;
         float current_prd = 0.0f;
         int next_beat = 0;
+        range prd_range = {0.0f, 0.0f};
     };
 }
