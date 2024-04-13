@@ -17,6 +17,10 @@ int main()
 
     li::beat_det bd(wavFile.GetSampleRate());
     li::fmat in(1, bd.frame_size);
-    bd.process(in);
+    for (size_t i = 0; i < wavSamples; i += bd.frame_size)
+    {
+        in.copy(wavData + i, bd.frame_size);
+        bd.process(in);
+    }
     return 0;
 }

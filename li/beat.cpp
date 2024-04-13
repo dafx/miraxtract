@@ -1,8 +1,19 @@
-/*
- * Copyright (c) 2024, Yan Li
- * All rights reserved.
- */
-
+/*******************************************************
+ * Copyright 2024 Li Zhou
+ *
+ * This software is the property of Li Zhou.
+ * Unauthorized copying of this software, or any portion
+ * of it, via any medium, is strictly prohibited. This
+ * includes, but is not limited to, modification or
+ * creation of derivative works based on the original
+ * software.
+ *
+ * Any use or distribution of this software requires
+ * explicit written permission from Li Zhou.
+ *
+ * Li Zhou reserves all rights not expressly
+ * granted to the user under this agreement.
+ *******************************************************/
 
 #include "beat.hpp"
 #include "xtract/libxtract.h"
@@ -68,12 +79,40 @@ void beat_det::calc_spec(const fvec &in, fvec &out)
     assert(out.size() == fft_size / 2);
 }
 
-float beat_det::calc_onsetfunc(const fvec &spec)
+float beat_det::calc_flux(const fvec &spec)
 {
     return 0;
 }
 
-int beat_det::process(float onsetfunc)
+int beat_det::process(float flux)
+{
+    flux += __FLT_EPSILON__;
+
+    history.roll(flux);
+
+    update_score(flux);
+    
+    next_beat--;
+    if (next_beat <= 0)
+    {
+        next_beat = update_prd();
+    }
+
+    return next_beat;
+}
+
+float beat_det::update_prd()
+{
+    current_prd = 0.0f;
+    return 0.0f;
+}
+
+int beat_det::predict_next_beat()
 {
     return 0;
+}
+
+void beat_det::update_score(float flux)
+{
+    score.roll(flux);
 }

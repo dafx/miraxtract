@@ -1,12 +1,26 @@
-/*
- * Copyright (c) 2024, Yan Li
- * All rights reserved.
- */
+/*******************************************************
+ * Copyright 2024 Li Zhou
+ *
+ * This software is the property of Li Zhou.
+ * Unauthorized copying of this software, or any portion
+ * of it, via any medium, is strictly prohibited. This
+ * includes, but is not limited to, modification or
+ * creation of derivative works based on the original
+ * software.
+ *
+ * Any use or distribution of this software requires
+ * explicit written permission from Li Zhou.
+ *
+ * Li Zhou reserves all rights not expressly
+ * granted to the user under this agreement.
+ *******************************************************/
 
 #pragma once
 
 #include <vector>
 #include <cmath>
+#include <cassert>
+#include <cstring>
 
 namespace li
 {
@@ -66,12 +80,25 @@ namespace li
             return data.data() + r * cols;
         }
 
+        void copy(float* src, size_t sz)
+        {
+            assert(sz <= data.size());
+            std::copy(src, src + sz, data.begin());
+        }
+
         void roll(const fmat& m)
         {
             assert(rows == 1 && m.rows == 1);
             assert(cols >= m.cols);
             std::memmove(data.data(), data.data() + m.data.size(), (cols - m.data.size()) * sizeof(float));
             std::copy(m.data.begin(), m.data.end(), data.data() + cols - m.data.size());
+        }
+
+        void roll(float v)
+        {
+            assert(rows == 1);
+            std::memmove(data.data(), data.data() + 1, (cols - 1) * sizeof(float));
+            data[cols - 1] = v;
         }
 
         void transpose()
