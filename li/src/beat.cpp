@@ -15,6 +15,8 @@
  * granted to the user under this agreement.
  *******************************************************/
 
+#include <float.h>
+
 #include "beat.hpp"
 #include "xtract/libxtract.h"
 
@@ -32,8 +34,8 @@ namespace li
         onset_func(int nfft_, float fs) : nfft(nfft_)
         {
             xtract_init_bark(nfft, fs, bands.data());
-            std::fill(bark.begin(), bark.end(), __FLT_EPSILON__);
-            std::fill(last.begin(), last.end(), __FLT_EPSILON__);
+            std::fill(bark.begin(), bark.end(), FLT_EPSILON);
+            std::fill(last.begin(), last.end(), FLT_EPSILON);
         }
 
         float process(const float* spec)
@@ -86,7 +88,7 @@ float beat_det::calc_flux(const fvec &spec)
 
 int beat_det::process(float flux)
 {
-    flux += __FLT_EPSILON__;
+    flux += FLT_EPSILON;
 
     history.roll(flux);
 

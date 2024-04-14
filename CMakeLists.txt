@@ -13,7 +13,7 @@ set(CMAKE_C_STANDARD 99)
 file( GLOB_RECURSE LIBXTRACT_SOURCE "src/*.c" )
 
 add_library( xtract STATIC ${LIBXTRACT_SOURCE} )
-target_compile_definitions( xtract PUBLIC -DUSE_OOURA)
+target_compile_definitions( xtract PUBLIC -DUSE_OOURA -D_USE_MATH_DEFINES)
 
 
 # Add executable target with source files listed in SOURCE_FILES variable
