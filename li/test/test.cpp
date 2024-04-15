@@ -16,11 +16,15 @@ int main()
     li::fvec data(wavSamples);
 
     li::beat_det bd(wavFile.GetSampleRate());
-    li::fmat in(1, bd.frame_size);
-    for (size_t i = 0; i < wavSamples; i += bd.frame_size)
+    li::fmat in(1, bd.frame_size_full_rate);
+    std::vector<float> flux(wavSamples / bd.frame_size_full_rate);
+    for (size_t i = 0; i < wavSamples; i += bd.frame_size_full_rate)
     {
-        in.copy(wavData + i, bd.frame_size);
+        in.copy(wavData + i, bd.frame_size_full_rate);
         bd.process(in);
+
+        flux[i / bd.frame_size_full_rate] = bd.get_flux();
+        printf("BPM: %.2f\n", bd.get_bpm());
     }
     return 0;
 }

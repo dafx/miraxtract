@@ -53,11 +53,15 @@ namespace li
     };
 }
 
-beat_det::beat_det(float fs_) : fs(fs_)
+beat_det::beat_det(float fs_) : fs(fs_ / downsample)
 {
     onset = new onset_func(fft_size, fs);
-    spectrum::gen_hann_window(window.data.data(), window_size);
     assert(onset);
+
+    spectrum::gen_hann_window(window.data.data(), window_size);
+
+    prd_range.lo = 60 * fs / (frame_size * bpm_range.hi);
+    prd_range.hi = 60 * fs / (frame_size * bpm_range.lo);
 }
 
 beat_det::~beat_det()
@@ -65,9 +69,10 @@ beat_det::~beat_det()
     delete onset;
 }
 
-int beat_det::process(const fmat &in)
+int beat_det::process(fmat &in)
 {
-    assert(in.cols == frame_size);
+    assert(in.cols == frame_size_full_rate);
+    deci.run(in.data.data(), in.cols, in.data.data());
     input.roll(in);
     input.weight(window);
     spec.calc_mag(input.row(0), temp.row(0), fs);

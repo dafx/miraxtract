@@ -30,6 +30,10 @@ namespace li
         bool check(float v) const { return v >= lo && v <= hi; }
     };
 
+    inline int f2i_up(float v) { return static_cast<int>(std::ceil(v)); }
+    inline int f2i_dn(float v) { return static_cast<int>(std::floor(v)); }
+    inline int f2i(float v) { return static_cast<int>(std::round(v)); }
+
     typedef std::vector<float> fvec;
     typedef std::vector<int> ivec;
 
@@ -49,8 +53,8 @@ namespace li
         fvec data;
         size_t rows, cols;
 
-        fmat(size_t r = 1, size_t c = 1, float v = 0.0f) 
-            : data(r * c), rows(r), cols(c) 
+        fmat(size_t r = 1, size_t c = 1, float v = 0.0f)
+            : data(r * c), rows(r), cols(c)
         {
             std::fill(data.begin(), data.end(), v);
         }
@@ -67,37 +71,41 @@ namespace li
             std::fill(data.begin(), data.end(), v);
         }
 
-        float& operator()(size_t r, size_t c)
+        float &operator()(size_t r, size_t c)
         {
             assert(r < rows && c < cols);
             return data[r * cols + c];
         }
 
         // quick access for first row
-        float& operator[](size_t c)
+        float &operator[](size_t c)
         {
             assert(c < cols);
             return data[c];
         }
 
-        float* row(size_t r)
+        float *row(size_t r)
         {
             assert(r < rows);
             return data.data() + r * cols;
         }
 
-        void copy(float* src, size_t sz)
+        void copy(float *src, size_t sz)
         {
             assert(sz <= data.size());
             std::copy(src, src + sz, data.begin());
         }
 
-        void roll(const fmat& m)
-        {
+        void roll(const fmat &m) {
             assert(rows == 1 && m.rows == 1);
-            assert(cols >= m.cols);
-            std::memmove(data.data(), data.data() + m.data.size(), (cols - m.data.size()) * sizeof(float));
-            std::copy(m.data.begin(), m.data.end(), data.data() + cols - m.data.size());
+            roll(m.data.data(), m.data.size());
+        }
+
+        void roll(const float* m, size_t sz)            
+        {
+            assert(cols >= sz);
+            std::memmove(data.data(), data.data() + sz, (cols - sz) * sizeof(float));
+            std::copy(m, m + sz, data.end() - sz);
         }
 
         void roll(float v)
@@ -120,7 +128,8 @@ namespace li
             *this = tmp;
         }
 
-        void weight(const fmat& m) {
+        void weight(const fmat &m)
+        {
             assert(rows == 1 && m.rows == 1);
             assert(rows == m.rows && cols == m.cols);
             for (size_t c = 0; c < cols; ++c)
@@ -139,5 +148,5 @@ namespace li
 
         size_t fft_size;
     };
-    
+
 }

@@ -18,6 +18,7 @@
 #pragma once
 
 #include "common.hpp"
+#include "signal.hpp"
 
 namespace li
 {
@@ -30,7 +31,8 @@ namespace li
         constexpr static size_t fft_size = 512;             // ~ 80 ms
         constexpr static size_t window_size = fft_size;
         constexpr static size_t frame_size = fft_size / 4;  // ~ 20 ms
-        constexpr static size_t downsample = 4;             // 6000 hz
+        constexpr static size_t downsample = 4;             // ~ 6000 hz
+        constexpr static size_t frame_size_full_rate = frame_size * downsample; // ~ 20 ms
 
         beat_det(float fs);
         ~beat_det();
@@ -39,11 +41,24 @@ namespace li
          * @brief Process a frame of audio data.
          * @return distance to the next beat.
          */        
-        int process(const fmat &in);
+        int process(fmat &in);
         int process(float flux);
 
         void calc_spec(const fvec &in, fvec &out);
         float calc_flux(const fvec &spec);
+
+        float get_bpm() const { 
+            if (prd_range.check(current_prd))
+                return 60.0f * fs / (current_prd * frame_size);
+            else
+                return 0.0f;
+        }
+
+        static float calc_bpm(float prd_in_samples, float fs) {
+            return 60.0f * fs / (prd_in_samples * frame_size);
+        }
+
+        float get_flux() const { return history.data.back(); }
 
     private:
 
@@ -59,6 +74,7 @@ namespace li
         fmat history = {1, history_size};
         fmat score = {1, history_size};
 
+        deci_by_4 deci;
         onset_func *onset = nullptr;
         spectrum spec = {fft_size};
         float fs;
