@@ -27,6 +27,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <assert.h>
+#include <float.h>
 
 #include "fft.h"
 
@@ -374,7 +375,7 @@ int xtract_spectrum(const real_t *data, const int N, const void *argv, real_t *r
 
     if(normalise)
     {
-        max += __FLT_EPSILON__;
+        max += FLT_EPSILON;
         for (n = 0; n < M; n++)
             result[n] /= max;
     }
